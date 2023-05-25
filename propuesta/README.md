@@ -10,9 +10,6 @@ Este widget está posicionado a la izquierda de la NavBar. Al hacer clic en él,
 ### Reproducción de Partidas Anteriores
 El siguiente widget en la NavBar permite a los usuarios acceder a una página que almacena sus partidas anteriores. Al hacer clic en este widget, los usuarios pueden revisar y reproducir partidas pasadas, lo que puede ser útil para analizar estrategias de juego y mejorar su desempeño.
 
-### Compra de Íconos
-El tercer widget en la NavBar lleva a los usuarios a una sección especial donde pueden "comprar" íconos para personalizar su perfil. Estos íconos se pueden adquirir con una moneda ficticia, lo que añade un elemento adicional de interacción y personalización a la experiencia de juego.
-
 ### Información de la Cuenta del Usuario
 El último widget en la NavBar dirige a los usuarios a una página donde pueden revisar y actualizar la información de su cuenta.
 
@@ -152,25 +149,6 @@ La ventana "Cuenta" se organiza en varias secciones para presentar de forma clar
 ### Nombre de Usuario
 Esta sección muestra el nombre de usuario del perfil. Este es el nombre que los demás usuarios ven durante las partidas y en la lista de partidas pasadas.
 
-### Saldo de Monedas
-El saldo de monedas actual del usuario se muestra en esta sección. Estas monedas se pueden utilizar para comprar íconos en la ventana "Microtransacciones".
 
-### Íconos del Usuario
-Esta sección presenta una lista de los íconos que el usuario ha adquirido. Cada ícono se muestra en una ventana con su imagen correspondiente.
-
-# Descripción de la Ventana Microtransacciones
-La ventana "Microtransacciones" permite a los usuarios comprar íconos utilizando las monedas que han acumulado. Estos íconos pueden usarse para personalizar su perfil de usuario.
-
-## Estructura de la Ventana Microtransacciones
-La ventana "Microtransacciones" presenta una lista de íconos disponibles para comprar, cada uno con su imagen, su precio y un botón para realizar la compra.
-
-### Íconos Disponibles
-Cada ícono disponible se muestra con una imagen representativa. Los usuarios pueden examinar esta lista para seleccionar los íconos que les interesen.
-
-### Selección de Cantidad
-Junto a cada ícono, hay un campo numérico que permite a los usuarios seleccionar la cantidad de íconos que desean comprar.
-
-### Botón de Compra
-Una vez que los usuarios han seleccionado la cantidad de íconos que desean comprar, pueden hacer clic en el botón de compra para completar la transacción.
-
-En resumen, las ventanas "Cuenta" y "Microtransacciones" ofrecen a los usuarios un control personalizado sobre su perfil y permiten la personalización de su experiencia a través de la compra de íconos.
+### Partidas Ganadas
+Esta sección enseña el número de partidas ganadas.
