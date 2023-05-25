@@ -60,3 +60,47 @@ Contraseña
 El segundo campo en el formulario es para la contraseña. Los usuarios deben ingresar una contraseña que será asociada a su cuenta.
 
 Después de que los usuarios completan esta información y seleccionan el botón de "Sign In", la aplicación crea una nueva cuenta para el usuario, permitiendo su acceso y uso del sistema del juego.
+
+# Descripción de la Ventana Mesa
+La ventana "Mesa" es un componente crítico de la aplicación que permite a los usuarios iniciar partidas con otros jugadores. Al seleccionar el widget del logo del juego en la ventana "NavBar" aparecen 20 ventanas Mesa.
+
+![Capture](https://github.com/GaboUCR/4-en-linea-multijugador/assets/69367406/c6a6354e-af5d-4d88-ac20-80db9fafea3a)
+
+## Estructura de la Ventana Mesa
+La ventana "Mesa" consiste en veinte mesas individuales, cada una representada con su número correspondiente. Cada mesa incluye un widget interactivo que permite a los usuarios unirse a la mesa para jugar una partida.
+
+## Unirse a la Mesa
+Cada mesa incluye un widget donde, al hacer clic, el nombre del usuario se visualiza y se marca un checkbox. Esto indica que el usuario se ha unido a la mesa y está listo para jugar.
+
+## Inicio de la Partida
+Cuando dos usuarios han hecho clic en el widget de la misma mesa, se considera que ambos jugadores están listos y la partida comienza.
+
+En resumen, la ventana "Mesa" es una interfaz interactiva que facilita el inicio de las partidas entre usuarios. Con su diseño claro y su fácil navegación, ofrece a los usuarios una manera sencilla y rápida de unirse a una partida y empezar a jugar.
+
+# Descripción de la Ventana Juego
+La ventana "Juego" es el corazón de la aplicación, donde ocurre la interacción principal con el usuario. En esta ventana, los jugadores interactúan con el tablero del juego para realizar sus movimientos.
+
+## Estructura de la Ventana Juego
+La ventana "Juego" consiste en un tablero interactivo que permite a los usuarios colocar sus fichas al hacer clic en la posición deseada.
+
+### Tablero de Juego
+El tablero de juego está diseñado de manera que los usuarios pueden hacer clic en la posición en la que desean colocar su ficha. Cada vez que un usuario hace clic en una posición, su ficha se coloca allí, y el turno pasa al siguiente jugador.
+
+En resumen, la ventana "Juego" proporciona la interfaz esencial para la interacción del juego, permitiendo a los usuarios colocar sus fichas y jugar la partida.
+
+# Descripción de la Ventana Jugadores
+La ventana "Jugadores" está ubicada en la parte superior de la pantalla y proporciona información relevante sobre la partida en curso.
+
+## Estructura de la Ventana Jugadores
+La ventana "Jugadores" muestra el número de la mesa en la que se está jugando y los nombres de los dos jugadores participantes. Además, incluye un indicador de turno para cada jugador.
+
+### Número de Mesa
+La ventana "Jugadores" muestra el número de la mesa en la que se está jugando la partida. Esto ayuda a los jugadores a identificar su partida actual.
+
+### Información de los Jugadores
+La ventana también muestra los nombres de los dos jugadores. Junto a cada nombre, hay un checkbox que se marca para indicar de quién es el turno actual.
+
+En resumen, la ventana "Jugadores" proporciona una visión general clara y rápida de la partida en curso, incluyendo quién está jugando y de quién es el turno actual.
+
+![Capture](https://github.com/GaboUCR/4-en-linea-multijugador/assets/69367406/ea8f35b5-e00f-4afa-97e0-86662491e535)
+
