@@ -104,3 +104,73 @@ En resumen, la ventana "Jugadores" proporciona una visión general clara y rápi
 
 ![Capture](https://github.com/GaboUCR/4-en-linea-multijugador/assets/69367406/ea8f35b5-e00f-4afa-97e0-86662491e535)
 
+# Descripción de la Ventana Partidas
+La ventana "Partidas" es una sección de la aplicación dedicada a almacenar y mostrar las partidas que los usuarios han jugado anteriormente. Los usuarios pueden acceder a esta ventana seleccionando el widget de partidas anteriores en la ventana "NavBar".
+
+## Estructura de la Ventana Partidas
+La ventana "Partidas" muestra una lista de partidas previas, cada una de ellas con información detallada sobre la partida, incluyendo el número de la partida, los nombres de los jugadores y el resultado de la partida.
+
+### Número de Partida
+Cada partida está identificada por un número único, que ayuda a los usuarios a identificar y recordar partidas específicas.
+
+### Nombres de los Jugadores
+Los nombres de los dos jugadores que participaron en la partida se muestran para cada partida. Esto permite a los usuarios ver con quién jugaron en partidas anteriores.
+
+### Resultado de la Partida
+Un checkbox junto a los nombres de los jugadores indica quién ganó la partida. Esto proporciona a los usuarios una forma rápida y clara de ver el resultado de cada partida.
+
+### Botón de visualizar
+Un botón que abre una pestaña nueva hacia la ventana de visualización que se detalla más adelante
+
+En resumen, la ventana "Partidas" es una herramienta útil que permite a los usuarios revisar sus partidas anteriores, recordar contra quién jugaron y ver los resultados de sus juegos. Esta ventana mejora la experiencia del usuario al permitirle seguir su progreso y analizar sus partidas anteriores.
+
+
+![Capture](https://github.com/GaboUCR/4-en-linea-multijugador/assets/69367406/6feda4e4-98b6-41e0-bfda-cbb0917c15c7)
+
+# Descripción de la Ventana Visualización
+La ventana "Visualización" ofrece a los usuarios una forma de revisar y analizar partidas jugadas anteriormente. Es similar a la ventana "Juego" en términos de estructura, pero incluye widgets adicionales para controlar la reproducción de la partida.
+
+## Estructura de la Ventana Visualización
+La ventana "Visualización" muestra un tablero de juego, idéntico al de la ventana "Juego", y tiene un widget para avanzar y retroceder entre las jugadas.
+
+### Tablero de Juego
+Como en la ventana "Juego", la ventana "Visualización" presenta un tablero de juego donde se muestran las posiciones de las fichas de los jugadores tal como estaban durante la partida.
+
+### Avanzar y Retroceder Jugadas
+Dos widgets con forma de flecha permiten a los usuarios avanzar y retroceder en el tiempo a través de las jugadas de la partida. La flecha hacia adelante mueve al usuario a la siguiente jugada, mientras que la flecha hacia atrás lo lleva a la jugada anterior.
+
+En resumen, la ventana "Visualización" ofrece a los usuarios una forma de revisar y analizar partidas pasadas, proporcionando una herramienta para entender mejor las estrategias utilizadas y mejorar sus habilidades de juego.
+
+![Capture](https://github.com/GaboUCR/4-en-linea-multijugador/assets/69367406/23ef3095-f4f1-4773-b536-86093c218843)
+
+# Descripción de la Ventana Cuenta
+La ventana "Cuenta" ofrece a los usuarios un resumen personalizado de su perfil dentro de la aplicación. Incluye información como el nombre de usuario, el saldo de monedas y los íconos que el usuario ha adquirido.
+
+## Estructura de la Ventana Cuenta
+La ventana "Cuenta" se organiza en varias secciones para presentar de forma clara y concisa la información del perfil del usuario.
+
+### Nombre de Usuario
+Esta sección muestra el nombre de usuario del perfil. Este es el nombre que los demás usuarios ven durante las partidas y en la lista de partidas pasadas.
+
+### Saldo de Monedas
+El saldo de monedas actual del usuario se muestra en esta sección. Estas monedas se pueden utilizar para comprar íconos en la ventana "Microtransacciones".
+
+### Íconos del Usuario
+Esta sección presenta una lista de los íconos que el usuario ha adquirido. Cada ícono se muestra en una ventana con su imagen correspondiente.
+
+# Descripción de la Ventana Microtransacciones
+La ventana "Microtransacciones" permite a los usuarios comprar íconos utilizando las monedas que han acumulado. Estos íconos pueden usarse para personalizar su perfil de usuario.
+
+## Estructura de la Ventana Microtransacciones
+La ventana "Microtransacciones" presenta una lista de íconos disponibles para comprar, cada uno con su imagen, su precio y un botón para realizar la compra.
+
+### Íconos Disponibles
+Cada ícono disponible se muestra con una imagen representativa. Los usuarios pueden examinar esta lista para seleccionar los íconos que les interesen.
+
+### Selección de Cantidad
+Junto a cada ícono, hay un campo numérico que permite a los usuarios seleccionar la cantidad de íconos que desean comprar.
+
+### Botón de Compra
+Una vez que los usuarios han seleccionado la cantidad de íconos que desean comprar, pueden hacer clic en el botón de compra para completar la transacción.
+
+En resumen, las ventanas "Cuenta" y "Microtransacciones" ofrecen a los usuarios un control personalizado sobre su perfil y permiten la personalización de su experiencia a través de la compra de íconos.
