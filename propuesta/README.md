@@ -14,10 +14,28 @@ El servidor también puede encargarse de filtrar los mensajes, de forma que cada
 
 En resumen, un servidor que sigue el modelo de publicación-suscripción facilita la comunicación eficiente entre múltiples entidades, permitiendo que los mensajes sean enviados y recibidos de forma selectiva y en tiempo real.
 
-# 
+# Funcionamiento de las Ventanas en el Modelo Pub-Sub
+El juego propuesto involucra varias ventanas interactivas que necesitan actualizarse en tiempo real según las acciones de los jugadores. Esto se realiza a través de un servidor que sigue el modelo de publicación-suscripción (pub-sub). A continuación, se describen los detalles de este proceso.
+
+## Ventana 'Mesa'
+La ventana 'Mesa' incluye dos widgets que cambian de estado cuando un jugador hace clic en ellos. Específicamente, al hacer clic en un widget, se muestra el nombre del jugador y se marca una casilla de verificación para indicar que el jugador desea participar en el juego.
+
+## Actualización de la ventana 'Mesa'
+Cuando un jugador interactúa con los widgets en la ventana 'Mesa', el servidor es informado de este cambio. En respuesta, el servidor publica una actualización a todos los clientes suscritos, informándoles del cambio de estado. De esta forma, todos los jugadores son informados de las acciones de los demás.
+
+## Ventana 'Juego'
+La ventana 'Juego' incluye un tablero de juego que debe ser actualizado cada vez que un jugador hace una jugada.
+
+## Actualización de la ventana 'Juego'
+Al igual que con la ventana 'Mesa', cuando un jugador realiza una jugada, el servidor es informado de esta acción. El servidor entonces publica una actualización a todos los clientes suscritos, permitiendo que todos los jugadores vean la jugada en tiempo real.
+
+## Ventana 'Jugadores'
+La ventana 'Jugadores' opera de una manera similar a las ventanas 'Mesa' y 'Juego'. Los cambios de estado en esta ventana también son comunicados al servidor, que a su vez los publica a todos los clientes suscritos.
+
+En resumen, el uso del modelo pub-sub permite que las ventanas del juego sean actualizadas en tiempo real, manteniendo a todos los jugadores sincronizados con el estado actual del juego.
 
 
-
+# Ventanas 
 
 # Descripción de la Ventana NavBar
 La ventana NavBar representa un componente esencial en la interfaz de usuario de la aplicación. Ubicada en la parte superior de la pantalla, NavBar actúa como una guía de navegación simplificada y accesible, permitiendo a los usuarios desplazarse con facilidad entre las distintas secciones del juego.
