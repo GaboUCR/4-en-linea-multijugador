@@ -1,3 +1,24 @@
+# Funcionamiento de un Servidor Pub-Sub
+El modelo de publicación-suscripción, comúnmente conocido como "pub-sub", es un patrón de mensajería en el cual los mensajes son enviados por publicadores y recibidos por suscriptores. A continuación, se presenta una descripción detallada de cómo funciona este modelo.
+
+## Publicadores
+En el modelo pub-sub, los publicadores son las entidades que generan y envían mensajes. Estos mensajes pueden contener cualquier tipo de información, y generalmente están relacionados con un tema o un tipo de evento en particular. En el contexto de un juego, un publicador podría ser una entidad que envía actualizaciones sobre el estado del juego.
+
+## Suscriptores
+Los suscriptores son las entidades que reciben los mensajes enviados por los publicadores. En lugar de recibir todos los mensajes que se envían, los suscriptores suelen "suscribirse" a los tipos específicos de mensajes que les interesan. Por ejemplo, un jugador podría suscribirse a actualizaciones sobre el estado del juego.
+
+## Servidor
+El servidor actúa como un intermediario entre los publicadores y los suscriptores. Cuando un publicador envía un mensaje, el servidor se encarga de entregar ese mensaje a todos los suscriptores que se hayan suscrito a ese tipo de mensaje.
+
+El servidor también puede encargarse de filtrar los mensajes, de forma que cada suscriptor sólo reciba los mensajes que le interesan. Esto puede ser especialmente útil en situaciones en las que hay muchos mensajes siendo enviados, pero cada suscriptor sólo está interesado en un subconjunto de ellos.
+
+En resumen, un servidor que sigue el modelo de publicación-suscripción facilita la comunicación eficiente entre múltiples entidades, permitiendo que los mensajes sean enviados y recibidos de forma selectiva y en tiempo real.
+
+# 
+
+
+
+
 # Descripción de la Ventana NavBar
 La ventana NavBar representa un componente esencial en la interfaz de usuario de la aplicación. Ubicada en la parte superior de la pantalla, NavBar actúa como una guía de navegación simplificada y accesible, permitiendo a los usuarios desplazarse con facilidad entre las distintas secciones del juego.
 
