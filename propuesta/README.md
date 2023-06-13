@@ -14,26 +14,6 @@ El servidor también puede encargarse de filtrar los mensajes, de forma que cada
 
 En resumen, un servidor que sigue el modelo de publicación-suscripción facilita la comunicación eficiente entre múltiples entidades, permitiendo que los mensajes sean enviados y recibidos de forma selectiva y en tiempo real.
 
-# Funcionamiento de las Ventanas en el Modelo Pub-Sub
-El juego propuesto involucra varias ventanas interactivas que necesitan actualizarse en tiempo real según las acciones de los jugadores. Esto se realiza a través de un servidor que sigue el modelo de publicación-suscripción (pub-sub). A continuación, se describen los detalles de este proceso.
-
-## Ventana 'Mesa'
-La ventana 'Mesa' incluye dos widgets que cambian de estado cuando un jugador hace clic en ellos. Específicamente, al hacer clic en un widget, se muestra el nombre del jugador y se marca una casilla de verificación para indicar que el jugador desea participar en el juego.
-
-## Actualización de la ventana 'Mesa'
-Cuando un jugador interactúa con los widgets en la ventana 'Mesa', el servidor es informado de este cambio. En respuesta, el servidor publica una actualización a todos los clientes suscritos, informándoles del cambio de estado. De esta forma, todos los jugadores son informados de las acciones de los demás.
-
-## Ventana 'Juego'
-La ventana 'Juego' incluye un tablero de juego que debe ser actualizado cada vez que un jugador hace una jugada.
-
-## Actualización de la ventana 'Juego'
-Al igual que con la ventana 'Mesa', cuando un jugador realiza una jugada, el servidor es informado de esta acción. El servidor entonces publica una actualización a todos los clientes suscritos, permitiendo que todos los jugadores vean la jugada en tiempo real.
-
-## Ventana 'Jugadores'
-La ventana 'Jugadores' opera de una manera similar a las ventanas 'Mesa' y 'Juego'. Los cambios de estado en esta ventana también son comunicados al servidor, que a su vez los publica a todos los clientes suscritos.
-
-En resumen, el uso del modelo pub-sub permite que las ventanas del juego sean actualizadas en tiempo real, manteniendo a todos los jugadores sincronizados con el estado actual del juego.
-
 
 # Ventanas 
 
@@ -120,7 +100,7 @@ La ventana "Juego" es el corazón de la aplicación, donde ocurre la interacció
 La ventana "Juego" consiste en un tablero interactivo que permite a los usuarios colocar sus fichas al hacer clic en la posición deseada.
 
 ### Tablero de Juego
-El tablero de juego está diseñado de manera que los usuarios pueden hacer clic en la posición en la que desean colocar su ficha. Cada vez que un usuario hace clic en una posición, su ficha se coloca allí, y el turno pasa al siguiente jugador.
+El tablero de juego está diseñado de manera que los usuarios pueden hacer clic en la posición en la que desean colocar su ficha, esto se consigue utilizando un widget. Cada vez que un usuario hace clic en una posición, su ficha se coloca allí, y el turno pasa al siguiente jugador.
 
 En resumen, la ventana "Juego" proporciona la interfaz esencial para la interacción del juego, permitiendo a los usuarios colocar sus fichas y jugar la partida.
 
@@ -163,6 +143,18 @@ En resumen, la ventana "Partidas" es una herramienta útil que permite a los usu
 
 ![Capture](https://github.com/GaboUCR/4-en-linea-multijugador/assets/69367406/6feda4e4-98b6-41e0-bfda-cbb0917c15c7)
 
+# Descripción de la Ventana Cuenta
+La ventana "Cuenta" ofrece a los usuarios un resumen personalizado de su perfil dentro de la aplicación. Incluye información como el nombre de usuario y la cantidad de partidas ganadas.
+
+## Estructura de la Ventana Cuenta
+La ventana "Cuenta" se organiza en varias secciones para presentar de forma clara y concisa la información del perfil del usuario.
+
+### Nombre de Usuario
+Esta sección muestra el nombre de usuario del perfil. Este es el nombre que los demás usuarios ven durante las partidas y en la lista de partidas pasadas.
+
+### Partidas Ganadas
+Esta sección enseña el número de partidas ganadas.
+
 # Descripción de la Ventana Visualización
 La ventana "Visualización" ofrece a los usuarios una forma de revisar y analizar partidas jugadas anteriormente. Es similar a la ventana "Juego" en términos de estructura, pero incluye widgets adicionales para controlar la reproducción de la partida.
 
@@ -179,15 +171,22 @@ En resumen, la ventana "Visualización" ofrece a los usuarios una forma de revis
 
 ![Capture](https://github.com/GaboUCR/4-en-linea-multijugador/assets/69367406/23ef3095-f4f1-4773-b536-86093c218843)
 
-# Descripción de la Ventana Cuenta
-La ventana "Cuenta" ofrece a los usuarios un resumen personalizado de su perfil dentro de la aplicación. Incluye información como el nombre de usuario, el saldo de monedas y los íconos que el usuario ha adquirido.
+# Funcionamiento de las Ventanas en el Modelo Pub-Sub
+El juego propuesto involucra varias ventanas interactivas que necesitan actualizarse en tiempo real según las acciones de los jugadores. Esto se realiza a través de un servidor que sigue el modelo de publicación-suscripción (pub-sub). A continuación, se describen los detalles de este proceso.
 
-## Estructura de la Ventana Cuenta
-La ventana "Cuenta" se organiza en varias secciones para presentar de forma clara y concisa la información del perfil del usuario.
+## Ventana 'Mesa'
+La ventana 'Mesa' incluye dos widgets que cambian de estado cuando un jugador hace clic en ellos. Específicamente, al hacer clic en un widget, se muestra el nombre del jugador y se marca una casilla de verificación para indicar que el jugador desea participar en el juego.
 
-### Nombre de Usuario
-Esta sección muestra el nombre de usuario del perfil. Este es el nombre que los demás usuarios ven durante las partidas y en la lista de partidas pasadas.
+## Actualización de la ventana 'Mesa'
+Cuando un jugador interactúa con los widgets en la ventana 'Mesa', el servidor es informado de este cambio. En respuesta, el servidor publica una actualización a todos los clientes suscritos, informándoles del cambio de estado. De esta forma, todos los jugadores son informados de las acciones de los demás.
 
+## Ventana 'Juego'
+La ventana 'Juego' incluye un tablero de juego que debe ser actualizado cada vez que un jugador hace una jugada.
 
-### Partidas Ganadas
-Esta sección enseña el número de partidas ganadas.
+## Actualización de la ventana 'Juego'
+Al igual que con la ventana 'Mesa', cuando un jugador realiza una jugada, el servidor es informado de esta acción. El servidor entonces publica una actualización a todos los clientes suscritos, permitiendo que todos los jugadores vean la jugada en tiempo real.
+
+## Ventana 'Jugadores'
+La ventana 'Jugadores' opera de una manera similar a las ventanas 'Mesa' y 'Juego'. Los cambios de estado en esta ventana también son comunicados al servidor, que a su vez los publica a todos los clientes suscritos.
+
+En resumen, el uso del modelo pub-sub permite que las ventanas del juego sean actualizadas en tiempo real, manteniendo a todos los jugadores sincronizados con el estado actual del juego.
