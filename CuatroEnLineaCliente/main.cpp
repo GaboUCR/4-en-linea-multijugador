@@ -11,49 +11,12 @@
 #include <QGridLayout>
 #include <QStyle>
 #include <QFont>
+#include <QResizeEvent>
+#include "Board.h"
 
-
-QWidget* ShowBoard() {
-    QWidget *boardWindow = new QWidget;
+Board* ShowBoard() {
+    Board *boardWindow = new Board;
     boardWindow->setWindowTitle("Game Board");
-
-    // Crear un layout en grilla
-    QGridLayout *gridLayout = new QGridLayout;
-
-    // Establecer el espaciado entre los botones y el margen del layout
-    gridLayout->setSpacing(0);
-    gridLayout->setContentsMargins(50, 0, 50, 0);  // Agregar un margen horizontal de 50
-
-    // Crear los botones y añadirlos al layout
-    for (int row = 0; row < 7; ++row) {
-        for (int col = 0; col < 7; ++col) {
-            // Crear un nuevo botón
-            QPushButton *button = new QPushButton;
-
-            // Personalizar la apariencia del botón con CSS
-            button->setStyleSheet(
-                "QPushButton {"
-                "  background-color: white;"  // Color de fondo blanco
-                "  border: 1px solid black;"  // Bordes negros
-                "  border-radius: 25px;"      // Hacer que el botón sea redondo
-                "  min-width: 50px;"          // Establecer el ancho mínimo
-                "  max-width: 50px;"          // Establecer el ancho máximo
-                "  min-height: 50px;"         // Establecer la altura mínima
-                "  max-height: 50px;"         // Establecer la altura máxima
-                "}"
-                "QPushButton:pressed {"
-                "  background-color: yellow;"  // Cambiar a amarillo cuando se presiona
-                "}"
-                );
-
-            // Añadir el botón al layout en la posición correspondiente
-            gridLayout->addWidget(button, row, col);
-        }
-    }
-
-    // Asignar el layout a la ventana
-    boardWindow->setLayout(gridLayout);
-
     return boardWindow;
 }
 
@@ -61,7 +24,7 @@ QWidget* ShowPlayers(const QString& player1, const QString& player2, int tableNu
     QWidget *playersWindow = new QWidget;
     playersWindow->setWindowTitle("Players Window");
 
-    QHBoxLayout *layoutMain = new QHBoxLayout;
+    QGridLayout *layoutMain = new QGridLayout;
 
     QLabel *tableLabel = new QLabel("Table: " + QString::number(tableNumber));
 
@@ -77,23 +40,18 @@ QWidget* ShowPlayers(const QString& player1, const QString& player2, int tableNu
     player1PixmapLabel->setPixmap(checkedPixmap);
     player2PixmapLabel->setPixmap(uncheckedPixmap);
 
-    QHBoxLayout *player1Layout = new QHBoxLayout;
-    player1Layout->addWidget(player1PixmapLabel);
-    player1Layout->addWidget(player1Label);
 
-    QHBoxLayout *player2Layout = new QHBoxLayout;
-    player2Layout->addWidget(player2PixmapLabel);
-    player2Layout->addWidget(player2Label);
-
-    layoutMain->addWidget(tableLabel);
-    layoutMain->addLayout(player1Layout);
-    layoutMain->addLayout(player2Layout);
+    // Ubicar los widgets en el grid layout
+    layoutMain->addWidget(tableLabel, 0, 0, 1, 1);
+    layoutMain->addWidget(player1PixmapLabel, 0, 1, 1, 1);
+    layoutMain->addWidget(player1Label, 0, 2, 1, 1);
+    layoutMain->addWidget(player2PixmapLabel, 0, 3, 1, 1);
+    layoutMain->addWidget(player2Label, 0, 4, 1, 1);
 
     playersWindow->setLayout(layoutMain);
 
     return playersWindow;
 }
-
 
 QWidget* ShowNavBarU() {
     QWidget *window = new QWidget;
@@ -245,7 +203,7 @@ QWidget* ShowGameWindow(const QString& player1, const QString& player2, int tabl
     QVBoxLayout *layoutMain = new QVBoxLayout;
 
     QWidget* playersWidget = ShowPlayers(player1, player2, tableNumber);
-    QWidget* boardWidget = ShowBoard();
+    Board* boardWidget = ShowBoard();
 
     layoutMain->addWidget(playersWidget);
     layoutMain->addWidget(boardWidget);
@@ -262,7 +220,6 @@ QWidget* ShowGameWindow(const QString& player1, const QString& player2, int tabl
 
     return gameWindow;
 }
-
 
 int main(int argc, char *argv[]) {
 

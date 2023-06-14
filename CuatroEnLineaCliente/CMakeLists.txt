@@ -16,6 +16,8 @@ set(PROJECT_SOURCES
         main.cpp
         mainwindow.cpp
         mainwindow.h
+        Board.h
+        Board.cpp
         mainwindow.ui
         files.qrc
 )
