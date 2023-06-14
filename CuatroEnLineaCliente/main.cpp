@@ -68,32 +68,32 @@ QWidget* ShowPlayers(const QString& player1, const QString& player2, int tableNu
     QLabel *player1Label = new QLabel(player1);
     QLabel *player2Label = new QLabel(player2);
 
-    QLabel *player1Checkbox = new QLabel;
-    QLabel *player2Checkbox = new QLabel;
+    QLabel *player1PixmapLabel = new QLabel;
+    QLabel *player2PixmapLabel = new QLabel;
 
-    player1Checkbox->setPixmap(QPixmap(":/imagenes/checked.png"));
-    player2Checkbox->setPixmap(QPixmap(":/imagenes/unchecked.png"));
+    QPixmap uncheckedPixmap(":/imagenes/unchecked.png");
+    QPixmap checkedPixmap(":/imagenes/checked.png");
+
+    player1PixmapLabel->setPixmap(checkedPixmap);
+    player2PixmapLabel->setPixmap(uncheckedPixmap);
+
     QHBoxLayout *player1Layout = new QHBoxLayout;
-    player1Layout->addWidget(player1Checkbox);
+    player1Layout->addWidget(player1PixmapLabel);
     player1Layout->addWidget(player1Label);
 
     QHBoxLayout *player2Layout = new QHBoxLayout;
-    player2Layout->addWidget(player2Checkbox);
+    player2Layout->addWidget(player2PixmapLabel);
     player2Layout->addWidget(player2Label);
 
-    QVBoxLayout *playersLayout = new QVBoxLayout;
-    playersLayout->addLayout(player1Layout);
-    playersLayout->addLayout(player2Layout);
-
     layoutMain->addWidget(tableLabel);
-    layoutMain->addStretch();  // Espacio estirable para centrar los nombres y checkboxes
-    layoutMain->addLayout(playersLayout);
-    layoutMain->addStretch();  // Espacio estirable para centrar los nombres y checkboxes
+    layoutMain->addLayout(player1Layout);
+    layoutMain->addLayout(player2Layout);
 
     playersWindow->setLayout(layoutMain);
 
     return playersWindow;
 }
+
 
 QWidget* ShowNavBarU() {
     QWidget *window = new QWidget;
@@ -238,16 +238,41 @@ QWidget* ShowNavBar() {
     return window;
 }
 
+QWidget* ShowGameWindow(const QString& player1, const QString& player2, int tableNumber) {
+    QWidget *gameWindow = new QWidget;
+    gameWindow->setWindowTitle("Game Window");
+
+    QVBoxLayout *layoutMain = new QVBoxLayout;
+
+    QWidget* playersWidget = ShowPlayers(player1, player2, tableNumber);
+    QWidget* boardWidget = ShowBoard();
+
+    layoutMain->addWidget(playersWidget);
+    layoutMain->addWidget(boardWidget);
+
+    // Establecer las proporciones del espacio que cada widget debe tomar.
+    layoutMain->setStretchFactor(playersWidget, 1);
+    layoutMain->setStretchFactor(boardWidget, 3);
+
+    gameWindow->setLayout(layoutMain);
+
+
+
+    gameWindow->setLayout(layoutMain);
+
+    return gameWindow;
+}
+
+
 int main(int argc, char *argv[]) {
 
-    QApplication app(argc, argv);
+   QApplication app(argc, argv);
 
-//    QWidget* NavBar = ShowPlayers("Gabo", "Gabriel", 4);
+//   QWidget* NavBar = ShowPlayers("Gabo", "Gabriel", 4);
 
-    QWidget* NavBar = ShowBoard();
+    QWidget* e = ShowGameWindow("gabo", "gabo2", 9);
 
-    NavBar->show();
-
+    e->show();
 
     return app.exec();
 }
