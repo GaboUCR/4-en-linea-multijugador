@@ -12,11 +12,14 @@
 #include <QStyle>
 #include <QFont>
 #include <QResizeEvent>
+#include <QTimer>
+
 #include "Board.h"
 
 Board* ShowBoard() {
     Board *boardWindow = new Board;
     boardWindow->setWindowTitle("Game Board");
+
     return boardWindow;
 }
 
@@ -214,10 +217,6 @@ QWidget* ShowGameWindow(const QString& player1, const QString& player2, int tabl
 
     gameWindow->setLayout(layoutMain);
 
-
-
-    gameWindow->setLayout(layoutMain);
-
     return gameWindow;
 }
 
@@ -227,9 +226,13 @@ int main(int argc, char *argv[]) {
 
 //   QWidget* NavBar = ShowPlayers("Gabo", "Gabriel", 4);
 
-    QWidget* e = ShowGameWindow("gabo", "gabo2", 9);
+    //QWidget* e = ShowGameWindow("gabo", "gabo2", 9);
 
+    Board* e = ShowBoard();
     e->show();
 
+    QTimer::singleShot(0, [e]() {
+        e->changeButtonColor(0, 0, YELLOW);
+    });
     return app.exec();
 }

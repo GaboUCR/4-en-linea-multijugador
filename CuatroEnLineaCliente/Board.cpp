@@ -33,11 +33,9 @@ Board::Board(QWidget *parent) : QWidget(parent)
                 "  min-height: 70px;"         // Establecer la altura mínima
                 "  max-height: 70px;"         // Establecer la altura máxima
                 "}"
-                "QPushButton:pressed {"
-                "  background-color: yellow;"  // Cambiar a amarillo cuando se presiona
-                "}"
                 );
 
+            buttons[row][col] = new QPushButton;
             // Añadir el botón al layout en la posición correspondiente
             gridLayout->addWidget(button, row, col);
         }
@@ -47,8 +45,23 @@ Board::Board(QWidget *parent) : QWidget(parent)
     setLayout(gridLayout);
 }
 
-void Board::resizeEvent(QResizeEvent *event)
+void Board::changeButtonColor(int row, int col, ButtonColor color)
 {
+    if (row < 0 || row >= 7 || col < 0 || col >= 7) {
+        // Índices fuera de rango
+        return;
+    }
+
+    QPushButton *button = buttons[row][col];
+    if (color == RED) {
+        button->setStyleSheet("QPushButton { background-color: red; } QPushButton:pressed { background-color: red; }");
+    } else if (color == YELLOW) {
+        button->setStyleSheet("QPushButton { background-color: yellow; } QPushButton:pressed { background-color: yellow; }");
+    }
+}
+
+void Board::resizeEvent(QResizeEvent *event)
+{   //@todo Ajustar diseño responsive
     QSize size = event->size();
     if (size.width() < 800) {
         gridLayout->setContentsMargins(200, 10, 200, 10);
