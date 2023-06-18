@@ -21,6 +21,8 @@ void Board::handleButtonClicked()
                 QByteArray message;
                 QDataStream stream(&message, QIODevice::WriteOnly);
                 stream.setVersion(QDataStream::Qt_5_15);
+                stream.setByteOrder(QDataStream::LittleEndian);
+
                 stream << (int)0;  // Action
                 stream << player_id;
                 stream << table;
