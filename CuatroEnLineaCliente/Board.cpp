@@ -1,6 +1,12 @@
 // Board.cpp
 #include "Board.h"
 
+void Board::SetWebSocket(MyWebSocket* socket)
+{
+    m_socket = socket;
+}
+
+
 void Board::handleButtonClicked()
 {
     QPushButton *button = qobject_cast<QPushButton*>(sender());  // Determina qué botón emitió la señal
@@ -28,8 +34,10 @@ void Board::handleButtonClicked()
     }
 }
 
-Board::Board(QWidget *parent) : QWidget(parent)
+Board::Board(int player_id, int table_id, MyWebSocket* socket, QWidget *parent)
+    : QWidget(parent), player_id(player_id), table(table_id), m_socket(socket)
 {
+
     // Crear un layout en grilla
     gridLayout = new QGridLayout;
 
@@ -63,7 +71,7 @@ Board::Board(QWidget *parent) : QWidget(parent)
                 "}"
                 );
 
-            buttons[row][col] = new QPushButton;
+            buttons[row][col] = button;
             // Añadir el botón al layout en la posición correspondiente
             gridLayout->addWidget(button, row, col);
         }

@@ -14,6 +14,7 @@ public:
     void sendBinaryMessage(const QByteArray &message);
 
 public slots:
+
     void onConnected();
     void onTextMessageReceived(const QString &message);
     void onBinaryMessageReceived(const QByteArray &message);

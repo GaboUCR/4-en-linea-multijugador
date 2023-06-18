@@ -19,8 +19,8 @@
 #include <QtNetwork>
 
 
-Board* ShowBoard() {
-    Board *boardWindow = new Board;
+Board* ShowBoard(int player_id, int table_id, MyWebSocket* socket) {
+    Board *boardWindow = new Board(player_id, table_id, socket);
     boardWindow->setWindowTitle("Game Board");
 
     return boardWindow;
@@ -202,14 +202,14 @@ QWidget* ShowNavBar() {
     return window;
 }
 
-QWidget* ShowGameWindow(const QString& player1, const QString& player2, int tableNumber) {
+QWidget* ShowGameWindow(const QString& player1, const QString& player2, int tableNumber, MyWebSocket* m_socket) {
     QWidget *gameWindow = new QWidget;
     gameWindow->setWindowTitle("Game Window");
 
     QVBoxLayout *layoutMain = new QVBoxLayout;
 
     QWidget* playersWidget = ShowPlayers(player1, player2, tableNumber);
-    Board* boardWidget = ShowBoard();
+    Board* boardWidget = ShowBoard(1,4,m_socket);
 
     layoutMain->addWidget(playersWidget);
     layoutMain->addWidget(boardWidget);
@@ -225,19 +225,23 @@ QWidget* ShowGameWindow(const QString& player1, const QString& player2, int tabl
 
 int main(int argc, char *argv[]) {
 
-   QApplication app(argc, argv);
+    QApplication app(argc, argv);
 
-    QWidget* NavBar = ShowPlayers("Gabo", "Gabriel", 4);
+    QUrl url = QUrl("ws://localhost:8080");
+
+    MyWebSocket *mySocket = new MyWebSocket(url);
+
+    auto e = ShowBoard(1,2, mySocket);
+
+    e->show();
 
     //QWidget* e = ShowGameWindow("gabo", "gabo2", 9);
 
-   // Board* e = ShowBoard();
     //e->show();
 
    // QTimer::singleShot(0, [e]() {
      //   e->changeButtonColor(0, 0, YELLOW);
     //});
-
 
     return app.exec();
 }

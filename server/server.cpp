@@ -28,9 +28,11 @@ void do_session(tcp::socket socket, std::unordered_map<int, GameTab*>* games)
 
         // Accept the websocket handshake
         ws.accept();
-
+        std::cout << "conexión aceptada" << std::endl;
+        
         for(;;)
         {
+            
             // Create a beast buffer
             boost::beast::flat_buffer buffer;
 
@@ -42,8 +44,6 @@ void do_session(tcp::socket socket, std::unordered_map<int, GameTab*>* games)
 
             // Get the action type
             int action = *(int*)(bytes.data());
-
-            std::cout << action << std::endl;
 
             // If action is board type
             if (action == 0) {
@@ -123,6 +123,8 @@ int main()
 
             // Block until we get a connection
             acceptor.accept(socket);
+
+            std::cout << "Cliente conectado \n";
 
             // Launch a new session for this connection
             std::thread(&do_session, std::move(socket), &games).detach();
