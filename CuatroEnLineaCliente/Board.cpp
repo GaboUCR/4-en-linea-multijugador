@@ -6,7 +6,6 @@ void Board::SetWebSocket(MyWebSocket* socket)
     m_socket = socket;
 }
 
-
 void Board::handleButtonClicked()
 {
     QPushButton *button = qobject_cast<QPushButton*>(sender());  // Determina qué botón emitió la señal
@@ -14,26 +13,45 @@ void Board::handleButtonClicked()
         return;
     }
 
-    for (int row = 0; row < 7; ++row) {
-        for (int col = 0; col < 7; ++col) {
+    // Identifica la columna que ha sido pulsada
+    int clicked_col = -1;
+    for (int col = 0; col < 7; ++col) {
+        for (int row = 0; row < 7; ++row) {
             if (buttons[row][col] == button) {
-                // Construye el mensaje aquí
-                QByteArray message;
-                QDataStream stream(&message, QIODevice::WriteOnly);
-                stream.setVersion(QDataStream::Qt_5_15);
-                stream.setByteOrder(QDataStream::LittleEndian);
-
-                stream << (int)0;  // Action
-                stream << player_id;
-                stream << table;
-                stream << row;
-                stream << col;
-
-                m_socket->sendBinaryMessage(message);
-                return;
+                clicked_col = col;
+                break;
             }
         }
+        if (clicked_col != -1) {
+            break;
+        }
     }
+
+    // Busca desde abajo en la columna hasta encontrar el primer espacio vacío
+    for (int row = 6; row >= 0; --row) {
+        if (boardState[row][clicked_col] == 0) {
+            // Aquí encontramos la primera casilla vacía en la columna
+            // Actualiza el estado de la casilla
+            boardState[row][clicked_col] = player_id;
+            // Construye el mensaje aquí
+            QByteArray message;
+            QDataStream stream(&message, QIODevice::WriteOnly);
+            stream.setVersion(QDataStream::Qt_5_15);
+            stream.setByteOrder(QDataStream::LittleEndian);
+
+            stream << (int)0;  // Action
+            stream << player_id;
+            stream << table;
+            stream << row;
+            stream << clicked_col;
+
+            m_socket->sendBinaryMessage(message);
+            return;
+
+
+        }
+    }
+
 }
 
 Board::Board(int player_id, int table_id, MyWebSocket* socket, QWidget *parent)
@@ -73,6 +91,8 @@ Board::Board(int player_id, int table_id, MyWebSocket* socket, QWidget *parent)
                 "}"
                 );
 
+            // Inicializa el estado del tablero a 0 (sin piezas)
+            boardState[row][col] = 0;
             buttons[row][col] = button;
             // Añadir el botón al layout en la posición correspondiente
             gridLayout->addWidget(button, row, col);

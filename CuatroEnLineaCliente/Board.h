@@ -33,6 +33,7 @@ private:
     QGridLayout *gridLayout;
     QPushButton *buttons[7][7];  // Aquí guardamos los punteros a los botones
     MyWebSocket* m_socket;
+    int boardState[7][7];
     int player_id;
     int table;
 };
