@@ -1,60 +1,89 @@
 #include <boost/beast/core.hpp>
+#include <boost/system/system_error.hpp>
 #include <boost/beast/websocket.hpp>
 #include <boost/asio/ip/tcp.hpp>
+#include <boost/asio/buffers_iterator.hpp>
 #include <iostream>
 #include <thread>
+#include <shared_mutex>
+#include <list>
+#include <tuple>
+#include "server.hpp"
 
-using tcp = boost::asio::ip::tcp;       // from <boost/asio/ip/tcp.hpp>
-namespace websocket = boost::beast::websocket; // from <boost/beast/websocket.hpp>
+
+using tcp = boost::asio::ip::tcp;       
+namespace websocket = boost::beast::websocket;
 
 void fail(boost::system::error_code ec, char const* what)
 {
     std::cerr << what << ": " << ec.message() << "\n";
 }
 
-void do_session(tcp::socket socket)
+void do_session(tcp::socket socket, std::unordered_map<int, GameTab*>* games)
 {
-    bool close = false;
-    websocket::stream<tcp::socket> ws{std::move(socket)};
-
-    boost::system::error_code ec;
-
-    // Accept the websocket handshake
-    ws.accept(ec);
-    if(ec)
+    try
     {
-        fail(ec, "accept");
+        // Create a websocket stream
+        websocket::stream<tcp::socket> ws{std::move(socket)};
+
+        // Accept the websocket handshake
+        ws.accept();
+
+        for(;;)
+        {
+            // Create a beast buffer
+            boost::beast::flat_buffer buffer;
+
+            // Read a message into the buffer
+            ws.read(buffer);
+
+            // Convert the buffer to bytes
+            std::vector<uint8_t> bytes(buffers_begin(buffer.data()), buffers_end(buffer.data()));
+
+            // Get the action type
+            int action = *(int*)(bytes.data());
+
+            std::cout << action << std::endl;
+
+            // If action is board type
+            if (action == 0) {
+
+                // Create a BoardMsg instance
+                BoardMsg board_msg;
+
+                // Start from the 5th byte (index 4) because the first 4 bytes are for the action type
+
+                board_msg.player_id = *(int*)(bytes.data() + 4);
+                board_msg.table_id = *(int*)(bytes.data() + 8);
+                board_msg.x = *(int*)(bytes.data() + 12);
+                board_msg.y = *(int*)(bytes.data() + 16);
+
+                // Print the board_msg data
+                std::cout << "Player ID: " << board_msg.player_id << std::endl;
+                std::cout << "Table ID: " << board_msg.table_id << std::endl;
+                std::cout << "X: " << board_msg.x << std::endl;
+                std::cout << "Y: " << board_msg.y << std::endl;
+
+                // Now you can do whatever you want with board_msg
+            }
+
+            // Clear the buffer
+            buffer.consume(buffer.size());
+
+
+        }
+    }
+    catch(boost::beast::system_error const& se)
+    {
+        // This indicates that the session was closed
+        if(se.code() != websocket::error::closed)
+            std::cerr << "Error: " << se.code().message() << "\n";
         return;
     }
-
-    while(!close)
+    catch(std::exception const& e)
     {
-        // This buffer will hold the incoming message
-        boost::beast::multi_buffer buffer;
-
-        // Read a message
-        ws.read(buffer, ec);
-        if(ec)
-        {
-            fail(ec, "read");
-            close = true;
-        }
-
-        // Echo the message back
-        ws.text(ws.got_text());
-        ws.write(buffer.data(), ec);
-        if(ec)
-        {
-            fail(ec, "write");
-            close = true;
-        }
-    }
-
-    // Close the WebSocket connection
-    ws.close(websocket::close_code::normal, ec);
-    if(ec)
-    {
-        fail(ec, "close");
+        std::cerr << "Error: " << e.what() << "\n";
+        return;
     }
 }
 
@@ -62,6 +91,23 @@ int main()
 {
     try
     {
+        // Se inicializan los valores para los tableros
+        std::unordered_map<int, GameTab*> games;
+
+        for (int i=0; i<30; i++) {
+
+            GameTab* gameTab = new GameTab;
+
+            std::tuple<int, int> jugadores(-1, -1);
+            std::list<std::tuple<int, int>> tablero;
+
+            gameTab->jugadores = jugadores;
+            gameTab->tablero = tablero;
+            gameTab->turno = -1;
+
+            games[i] = gameTab;
+
+        }
         auto const address = boost::asio::ip::make_address("0.0.0.0");
         auto const port = static_cast<unsigned short>(std::atoi("8080"));
 
@@ -79,7 +125,7 @@ int main()
             acceptor.accept(socket);
 
             // Launch a new session for this connection
-            std::thread(&do_session, std::move(socket)).detach();
+            std::thread(&do_session, std::move(socket), &games).detach();
         }
     }
     catch(const std::exception& e)
