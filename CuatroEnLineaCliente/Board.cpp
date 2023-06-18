@@ -1,6 +1,33 @@
 // Board.cpp
 #include "Board.h"
 
+void Board::handleButtonClicked()
+{
+    QPushButton *button = qobject_cast<QPushButton*>(sender());  // Determina qué botón emitió la señal
+    if (!button) {
+        return;
+    }
+
+    for (int row = 0; row < 7; ++row) {
+        for (int col = 0; col < 7; ++col) {
+            if (buttons[row][col] == button) {
+                // Construye el mensaje aquí
+                QByteArray message;
+                QDataStream stream(&message, QIODevice::WriteOnly);
+                stream.setVersion(QDataStream::Qt_5_15);
+                stream << (int)0;  // Action
+                stream << player_id;
+                stream << table;
+                stream << row;
+                stream << col;
+
+                m_socket->sendBinaryMessage(message);
+                return;
+            }
+        }
+    }
+}
+
 Board::Board(QWidget *parent) : QWidget(parent)
 {
     // Crear un layout en grilla
@@ -21,6 +48,7 @@ Board::Board(QWidget *parent) : QWidget(parent)
         for (int col = 0; col < 7; ++col) {
             // Crear un nuevo botón
             QPushButton *button = new QPushButton;
+            connect(button, &QPushButton::clicked, this, &Board::handleButtonClicked);  // Conecta la señal clicked del botón a un nuevo slot
 
             // Personalizar la apariencia del botón con CSS
             button->setStyleSheet(

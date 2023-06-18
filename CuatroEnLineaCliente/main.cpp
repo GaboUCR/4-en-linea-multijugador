@@ -13,8 +13,11 @@
 #include <QFont>
 #include <QResizeEvent>
 #include <QTimer>
-
 #include "Board.h"
+#include <QWebSocket>
+#include <QUrl>
+#include <QtNetwork>
+
 
 Board* ShowBoard() {
     Board *boardWindow = new Board;
@@ -224,15 +227,17 @@ int main(int argc, char *argv[]) {
 
    QApplication app(argc, argv);
 
-//   QWidget* NavBar = ShowPlayers("Gabo", "Gabriel", 4);
+    QWidget* NavBar = ShowPlayers("Gabo", "Gabriel", 4);
 
     //QWidget* e = ShowGameWindow("gabo", "gabo2", 9);
 
-    Board* e = ShowBoard();
-    e->show();
+   // Board* e = ShowBoard();
+    //e->show();
 
-    QTimer::singleShot(0, [e]() {
-        e->changeButtonColor(0, 0, YELLOW);
-    });
+   // QTimer::singleShot(0, [e]() {
+     //   e->changeButtonColor(0, 0, YELLOW);
+    //});
+
+
     return app.exec();
 }
