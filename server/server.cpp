@@ -29,6 +29,8 @@ void do_session(int session_id, std::unordered_map<int, std::shared_ptr<channel>
         // Creamos un puntero para el socket del websocket para facilitar su uso
         auto& ws = *(sessions[session_id]->session);
 
+        //se añade aquí
+
         for(;;)
         {
             // Create a beast buffer
@@ -44,7 +46,7 @@ void do_session(int session_id, std::unordered_map<int, std::shared_ptr<channel>
             int action = *(int*)(bytes.data());
 
             // If action is board type
-            if (action == 0) {
+            if (action == board) {
 
                 // Create a BoardMsg instance
                 BoardMsg board_msg;
@@ -133,40 +135,48 @@ int main()
         std::shared_mutex sessions_mutex;
         int session_id = 0;
 
-        for(;;)
+    for(;;)
+    {
+        // This will receive the new connection
+        tcp::socket socket{ioc};
+
+        // Block until we get a connection
+        acceptor.accept(socket);
+
+        // Create a websocket stream
+        websocket::stream<tcp::socket> ws{std::move(socket)};
+        
+        // Accept the websocket handshake
+        ws.accept();
+
+        std::cout << "Cliente conectado \n";
+
+        auto new_channel = std::make_shared<channel>();
+        new_channel->session = std::make_shared<websocket::stream<tcp::socket>>(std::move(ws));
+        // El mutex se inicializa automáticamente
+
+        // Se agrega una nueva sesión
         {
-            // This will receive the new connection
-            tcp::socket socket{ioc};
+            std::unique_lock<std::shared_mutex> lock(sessions_mutex);
+            sessions[session_id] = new_channel;
+        }            
 
-            // Block until we get a connection
-            acceptor.accept(socket);
-
-            // Create a websocket stream
-            websocket::stream<tcp::socket> ws{std::move(socket)};
-            
-            // Accept the websocket handshake
-            ws.accept();
-
-            std::cout << "Cliente conectado \n";
-
-
-            auto new_channel = std::make_shared<channel>();
-            new_channel->session = std::make_shared<websocket::stream<tcp::socket>>(std::move(ws));
-            // El mutex se inicializa automáticamente
-
-            // Se agrega una nueva sesión
-            {
-                std::unique_lock<std::shared_mutex> lock(sessions_mutex);
-                sessions[session_id] = new_channel;
-                // El bloqueo se libera cuando sale del ámbito
-            }            
-
-            // se acepta la conexión
-
-            // Launch a new session for this connection
-            std::thread(&do_session, session_id, std::ref(sessions), std::ref(games), std::ref(tables)).detach();
-            session_id++;
+        // Envía el ID de la sesión al cliente
+        {
+            std::unique_lock<std::shared_mutex> lock(sessions[session_id]->mutex);
+            std::vector<uint8_t> message(8, 0); // crea un vector de 8 bytes, inicializado a 0
+            *(int*)(message.data()) = 0; // los primeros 4 bytes son 0
+            *(int*)(message.data() + 4) = session_id; // los siguientes 4 bytes son el id de la sesión
+            boost::beast::flat_buffer buffer;
+            buffer.commit(boost::asio::buffer_copy(buffer.prepare(message.size()), boost::asio::buffer(message)));
+            sessions[session_id]->session->write(buffer.data());
         }
+
+        // Launch a new session for this connection
+        std::thread(&do_session, session_id, std::ref(sessions), std::ref(games), std::ref(tables)).detach();
+        session_id++;
+    }
+
     }
     catch(const std::exception& e)
     {

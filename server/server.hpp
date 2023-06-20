@@ -31,6 +31,13 @@ struct TableTab {
     std::shared_mutex mutex;
 };
 
+// comunicación servidor-cliente
+enum {
+    credencial = 0
+    
+};
+
+// comunicación cliente-servidor
 enum {
     board = 0,
     table = 1
