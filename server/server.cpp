@@ -169,6 +169,7 @@ int main()
             *(int*)(message.data() + 4) = session_id; // los siguientes 4 bytes son el id de la sesión
             boost::beast::flat_buffer buffer;
             buffer.commit(boost::asio::buffer_copy(buffer.prepare(message.size()), boost::asio::buffer(message)));
+            sessions[session_id]->session->binary(true);
             sessions[session_id]->session->write(buffer.data());
         }
 

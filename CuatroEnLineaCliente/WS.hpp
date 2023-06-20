@@ -3,6 +3,12 @@
 
 #include <QObject>
 #include <QWebSocket>
+#include <QMutex>
+
+enum {
+    credencial = 0
+
+};
 
 class MyWebSocket : public QObject
 {
@@ -12,16 +18,19 @@ public:
     MyWebSocket(const QUrl &url, QObject *parent = nullptr);
     ~MyWebSocket();
     void sendBinaryMessage(const QByteArray &message);
+    int getSessionId();
 
 public slots:
 
     void onConnected();
-    void onTextMessageReceived(const QString &message);
-    void onBinaryMessageReceived(const QByteArray &message);
+    void onMessageReceived(const QByteArray &message);
     void onDisconnected();
+    void onError(QAbstractSocket::SocketError error);
 
 private:
     QWebSocket *m_webSocket;
+    int session_id;
+    QMutex m_mutex;
 };
 
 #endif // MYWEBSOCKET_HPP

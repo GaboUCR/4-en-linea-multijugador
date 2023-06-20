@@ -230,6 +230,10 @@ int main(int argc, char *argv[]) {
 
     MyWebSocket *mySocket = new MyWebSocket(url);
 
+    qDebug() << "Hola";
+
+    qDebug() << mySocket->getSessionId();
+
     auto e = ShowBoard(1,2, mySocket);
 
     e->show();
