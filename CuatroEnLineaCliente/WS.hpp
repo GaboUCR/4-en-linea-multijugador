@@ -6,7 +6,8 @@
 #include <QMutex>
 
 enum {
-    credencial = 0
+    credencial = 0,
+    board = 1
 
 };
 

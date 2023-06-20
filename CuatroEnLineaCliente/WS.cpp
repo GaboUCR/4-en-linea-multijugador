@@ -44,17 +44,15 @@ void MyWebSocket::onMessageReceived(const QByteArray &message)
 {
     QMutexLocker locker(&m_mutex);
 
-    if(message.size() >= 8) // verificamos que el mensaje tenga al menos 8 bytes
-    {
-        int action = *reinterpret_cast<const int*>(message.constData());
+    int action = *reinterpret_cast<const int*>(message.constData());
 
-        if(action == 0) // si los primeros 4 bytes son 0, sabemos que los siguientes 4 bytes son el ID de la sesión
-        {
-            session_id = *reinterpret_cast<const int*>(message.constData() + 4);
-            qDebug() << "Session ID: " << session_id;
-            // Aquí puedes emitir una señal o hacer lo que necesites con el ID de la sesión
-        }
+    if(action == credencial) // si los primeros 4 bytes son 0, sabemos que los siguientes 4 bytes son el ID de la sesión
+    {
+        session_id = *reinterpret_cast<const int*>(message.constData() + 4);
+        qDebug() << "Session ID: " << session_id;
+        // Aquí puedes emitir una señal o hacer lo que necesites con el ID de la sesión
     }
+
 
     // Handle other binary messages here
 }
