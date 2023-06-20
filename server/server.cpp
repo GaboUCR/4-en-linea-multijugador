@@ -29,13 +29,14 @@ void do_session(int session_id, std::unordered_map<int, std::shared_ptr<channel>
         // Creamos un puntero para el socket del websocket para facilitar su uso
         auto& ws = *(sessions[session_id]->session);
 
+        //se añade aquí
+
         for(;;)
         {
             // Create a beast buffer
             boost::beast::flat_buffer buffer;
 
             // Read a message into the buffer
-            // problema de bloqueo
             ws.read(buffer);
 
             // Convert the buffer to bytes
