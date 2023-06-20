@@ -52,10 +52,19 @@ void MyWebSocket::onMessageReceived(const QByteArray &message)
         qDebug() << "Session ID: " << session_id;
         // Aquí puedes emitir una señal o hacer lo que necesites con el ID de la sesión
     }
+    else if(action == 1) // si los primeros 4 bytes son 1, tenemos un mensaje de cambio de color en el tablero
+    {
+        int x = *reinterpret_cast<const int*>(message.constData() + 4);
+        int y = *reinterpret_cast<const int*>(message.constData() + 8);
+        int color = *reinterpret_cast<const int*>(message.constData() + 12);
 
+
+        emit boardColorChanged(x, y, color);
+    }
 
     // Handle other binary messages here
 }
+
 
 void MyWebSocket::onError(QAbstractSocket::SocketError error)
 {

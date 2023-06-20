@@ -57,6 +57,8 @@ Board::Board(int player_id, int table_id, MyWebSocket* socket, QWidget *parent)
     : QWidget(parent), player_id(player_id), table(table_id), m_socket(socket)
 {
 
+    connect(socket, &MyWebSocket::boardColorChanged, this, &Board::changeButtonColor);
+
     // Crear un layout en grilla
     gridLayout = new QGridLayout;
 
@@ -102,7 +104,7 @@ Board::Board(int player_id, int table_id, MyWebSocket* socket, QWidget *parent)
     setLayout(gridLayout);
 }
 
-void Board::changeButtonColor(int row, int col, ButtonColor color)
+void Board::changeButtonColor(int row, int col, int color)
 {
     if (row < 0 || row >= 7 || col < 0 || col >= 7) {
         // Índices fuera de rango

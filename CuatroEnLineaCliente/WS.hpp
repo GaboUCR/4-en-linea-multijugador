@@ -21,6 +21,8 @@ public:
     void sendBinaryMessage(const QByteArray &message);
     int getSessionId();
 
+signals:
+    void boardColorChanged(int x, int y, int color);
 public slots:
 
     void onConnected();

@@ -18,7 +18,7 @@ class Board : public QWidget
 
 public:
     Board(int player_id, int table_id, MyWebSocket* socket, QWidget *parent = nullptr);
-    void changeButtonColor(int row, int col, ButtonColor color);
+    void changeButtonColor(int row, int col, int color);
     void SetWebSocket (MyWebSocket* m_socket);
 signals:
     void buttonClicked(int x, int y, int player_id, int table_id);
