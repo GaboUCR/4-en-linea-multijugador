@@ -18,7 +18,6 @@
 #include <QUrl>
 #include <QtNetwork>
 
-
 Board* ShowBoard(int player_id, int table_id, MyWebSocket* socket) {
     Board *boardWindow = new Board(player_id, table_id, socket);
     boardWindow->setWindowTitle("Game Board");

@@ -19,20 +19,18 @@ void fail(boost::system::error_code ec, char const* what)
     std::cerr << what << ": " << ec.message() << "\n";
 }
 
-void do_session(tcp::socket socket, std::unordered_map<int, GameTab*>* games)
+void do_session(int session_id, std::unordered_map<int, std::shared_ptr<channel>>& sessions, std::unordered_map<int, GameTab*>& games, std::unordered_map<int, TableTab*>& tables)
 {
     try
     {
-        // Create a websocket stream
-        websocket::stream<tcp::socket> ws{std::move(socket)};
+        // Adquiere el bloqueo para esta sesión
+        std::unique_lock<std::shared_mutex> lock(sessions[session_id]->mutex);
 
-        // Accept the websocket handshake
-        ws.accept();
-        std::cout << "conexión aceptada" << std::endl;
-        
+        // Creamos un puntero para el socket del websocket para facilitar su uso
+        auto& ws = *(sessions[session_id]->session);
+
         for(;;)
         {
-            
             // Create a beast buffer
             boost::beast::flat_buffer buffer;
 
@@ -70,7 +68,10 @@ void do_session(tcp::socket socket, std::unordered_map<int, GameTab*>* games)
             // Clear the buffer
             buffer.consume(buffer.size());
 
-
+            // Libera el bloqueo antes de esperar para el siguiente mensaje
+            lock.unlock();
+            // Aquí podría poner alguna lógica de pausa o espera, si fuera necesario.
+            lock.lock();
         }
     }
     catch(boost::beast::system_error const& se)
@@ -91,13 +92,14 @@ int main()
 {
     try
     {
-        // Se inicializan los valores para los tableros
+        // Se inicializan los valores compartidos para los tableros y las mesas
         std::unordered_map<int, GameTab*> games;
+        std::unordered_map<int, TableTab*> tables;
 
         for (int i=0; i<30; i++) {
 
             GameTab* gameTab = new GameTab;
-
+            
             std::tuple<int, int> jugadores(-1, -1);
             std::list<std::tuple<int, int>> tablero;
 
@@ -107,15 +109,30 @@ int main()
 
             games[i] = gameTab;
 
+            TableTab* tableTab = new TableTab;
+
+            tableTab->jugador_1 = "";
+            tableTab->jugador_2 = "";
+
+            tables[i] = tableTab;
         }
+
         auto const address = boost::asio::ip::make_address("0.0.0.0");
         auto const port = static_cast<unsigned short>(std::atoi("8080"));
+
+        std::cout << "¡Bienvenido al servidor de juegos!" << std::endl;
+        std::cout << "El servidor está utilizando el puerto " << port << " para las conexiones." << std::endl;
 
         // The io_context is required for all I/O
         boost::asio::io_context ioc{1};
 
         // The acceptor receives incoming connections
         tcp::acceptor acceptor{ioc, {address, port}};
+
+        std::unordered_map<int, std::shared_ptr<channel>> sessions;
+        std::shared_mutex sessions_mutex;
+        int session_id = 0;
+
         for(;;)
         {
             // This will receive the new connection
@@ -124,10 +141,31 @@ int main()
             // Block until we get a connection
             acceptor.accept(socket);
 
+            // Create a websocket stream
+            websocket::stream<tcp::socket> ws{std::move(socket)};
+            
+            // Accept the websocket handshake
+            ws.accept();
+
             std::cout << "Cliente conectado \n";
 
+
+            auto new_channel = std::make_shared<channel>();
+            new_channel->session = std::make_shared<websocket::stream<tcp::socket>>(std::move(ws));
+            // El mutex se inicializa automáticamente
+
+            // Se agrega una nueva sesión
+            {
+                std::unique_lock<std::shared_mutex> lock(sessions_mutex);
+                sessions[session_id] = new_channel;
+                // El bloqueo se libera cuando sale del ámbito
+            }            
+
+            // se acepta la conexión
+
             // Launch a new session for this connection
-            std::thread(&do_session, std::move(socket), &games).detach();
+            std::thread(&do_session, session_id, std::ref(sessions), std::ref(games), std::ref(tables)).detach();
+            session_id++;
         }
     }
     catch(const std::exception& e)

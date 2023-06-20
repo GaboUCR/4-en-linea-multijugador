@@ -31,8 +31,7 @@ void Board::handleButtonClicked()
     for (int row = 6; row >= 0; --row) {
         if (boardState[row][clicked_col] == 0) {
             // Aquí encontramos la primera casilla vacía en la columna
-            // Actualiza el estado de la casilla
-            boardState[row][clicked_col] = player_id;
+
             // Construye el mensaje aquí
             QByteArray message;
             QDataStream stream(&message, QIODevice::WriteOnly);
