@@ -13,10 +13,12 @@
 #include <QFont>
 #include <QResizeEvent>
 #include <QTimer>
-#include "Board.h"
 #include <QWebSocket>
 #include <QUrl>
 #include <QtNetwork>
+#include "Board.h"
+#include "Players.hpp"
+
 
 Board* ShowBoard(int player_id, int table_id, MyWebSocket* socket) {
     Board *boardWindow = new Board(player_id, table_id, socket);
@@ -26,34 +28,8 @@ Board* ShowBoard(int player_id, int table_id, MyWebSocket* socket) {
 }
 
 QWidget* ShowPlayers(const QString& player1, const QString& player2, int tableNumber) {
-    QWidget *playersWindow = new QWidget;
-    playersWindow->setWindowTitle("Players Window");
 
-    QGridLayout *layoutMain = new QGridLayout;
-
-    QLabel *tableLabel = new QLabel("Table: " + QString::number(tableNumber));
-
-    QLabel *player1Label = new QLabel(player1);
-    QLabel *player2Label = new QLabel(player2);
-
-    QLabel *player1PixmapLabel = new QLabel;
-    QLabel *player2PixmapLabel = new QLabel;
-
-    QPixmap uncheckedPixmap(":/imagenes/unchecked.png");
-    QPixmap checkedPixmap(":/imagenes/checked.png");
-
-    player1PixmapLabel->setPixmap(checkedPixmap);
-    player2PixmapLabel->setPixmap(uncheckedPixmap);
-
-
-    // Ubicar los widgets en el grid layout
-    layoutMain->addWidget(tableLabel, 0, 0, 1, 1);
-    layoutMain->addWidget(player1PixmapLabel, 0, 1, 1, 1);
-    layoutMain->addWidget(player1Label, 0, 2, 1, 1);
-    layoutMain->addWidget(player2PixmapLabel, 0, 3, 1, 1);
-    layoutMain->addWidget(player2Label, 0, 4, 1, 1);
-
-    playersWindow->setLayout(layoutMain);
+    Players *playersWindow = new Players(player1, player2, tableNumber);
 
     return playersWindow;
 }

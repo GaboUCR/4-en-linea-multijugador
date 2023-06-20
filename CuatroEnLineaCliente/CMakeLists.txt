@@ -22,6 +22,8 @@ set(PROJECT_SOURCES
         files.qrc
         WS.cpp
         WS.hpp
+        Players.hpp
+        Players.cpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
