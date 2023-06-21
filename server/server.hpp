@@ -10,13 +10,6 @@
 namespace websocket = boost::beast::websocket;
 using tcp = boost::asio::ip::tcp;
 
-struct channel {
-    std::shared_ptr<websocket::stream<tcp::socket>> session;
-    int player_id;
-    std::shared_mutex mutex;
-
-};
-
 struct GameTab {
     std::list<std::tuple<int, int>> tablero;
     int turno;
@@ -40,7 +33,8 @@ enum {
 // comunicación cliente-servidor
 enum {
     board = 0,
-    table = 1
+    table = 1,
+    nulo = 2
 };
 
 struct BoardMsg {

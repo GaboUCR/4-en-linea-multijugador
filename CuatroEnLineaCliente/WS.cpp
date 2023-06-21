@@ -3,6 +3,7 @@
 #include <QUrl>
 #include <QtNetwork>
 #include <QMutex>
+#include <QTimer>
 
 MyWebSocket::MyWebSocket(const QUrl &url, QObject *parent) :
     QObject(parent),
@@ -13,13 +14,20 @@ MyWebSocket::MyWebSocket(const QUrl &url, QObject *parent) :
     connect(m_webSocket, &QWebSocket::disconnected, this, &MyWebSocket::onDisconnected);
 
     m_webSocket->open(url);
+
+    // Create a new QTimer instance
+    m_heartbeatTimer = new QTimer(this);
+    // Connect the timer to the slot for sending the "heartbeat"
+    connect(m_heartbeatTimer, &QTimer::timeout, this, &MyWebSocket::sendHeartbeat);
 }
 
 MyWebSocket::~MyWebSocket()
 {
+    m_heartbeatTimer->stop();
+    delete m_heartbeatTimer;
+
     m_webSocket->close();
     delete m_webSocket;
-
 }
 
 int MyWebSocket::getSessionId(){
@@ -31,13 +39,25 @@ void MyWebSocket::onConnected()
 
     connect(m_webSocket, &QWebSocket::binaryMessageReceived, this, &MyWebSocket::onMessageReceived);
     connect(m_webSocket, &QWebSocket::errorOccurred, this, &MyWebSocket::onError);
+
+    // Start the heartbeat timer to fire every 200ms
+    m_heartbeatTimer->start(200);
 }
 
 void MyWebSocket::sendBinaryMessage(const QByteArray &message)
 {
     QMutexLocker locker(&m_mutex);
     m_webSocket->sendBinaryMessage(message);
+}
 
+void MyWebSocket::sendHeartbeat()
+{
+    // The "heartbeat" is simply 4 bytes with a value of 2
+    QByteArray heartbeat(4, 0);
+    heartbeat[0] = 2;
+
+
+    sendBinaryMessage(heartbeat);
 }
 
 void MyWebSocket::onMessageReceived(const QByteArray &message)
@@ -58,13 +78,11 @@ void MyWebSocket::onMessageReceived(const QByteArray &message)
         int y = *reinterpret_cast<const int*>(message.constData() + 8);
         int color = *reinterpret_cast<const int*>(message.constData() + 12);
 
-
         emit boardColorChanged(x, y, color);
     }
 
     // Handle other binary messages here
 }
-
 
 void MyWebSocket::onError(QAbstractSocket::SocketError error)
 {
@@ -75,5 +93,7 @@ void MyWebSocket::onError(QAbstractSocket::SocketError error)
 void MyWebSocket::onDisconnected()
 {
     QMutexLocker locker(&m_mutex);
+    // Stop the heartbeat timer when disconnected
+    m_heartbeatTimer->stop();
     // Handle disconnection here
 }

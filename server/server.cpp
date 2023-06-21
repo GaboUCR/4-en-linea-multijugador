@@ -9,7 +9,9 @@
 #include <list>
 #include <tuple>
 #include "server.hpp"
-
+#include "channel.hpp"
+#include <thread>
+#include <chrono>
 
 using tcp = boost::asio::ip::tcp;       
 namespace websocket = boost::beast::websocket;
@@ -23,27 +25,25 @@ void do_session(int session_id, std::unordered_map<int, std::shared_ptr<channel>
 {
     try
     {
-        // Adquiere el bloqueo para esta sesión
-        std::unique_lock<std::shared_mutex> lock(sessions[session_id]->mutex);
-
         // Creamos un puntero para el socket del websocket para facilitar su uso
         auto& ws = *(sessions[session_id]->session);
-
-        //se añade aquí
 
         for(;;)
         {
             // Create a beast buffer
             boost::beast::flat_buffer buffer;
 
+            // Adquiere el bloqueo para esta sesión
+            std::unique_lock<std::shared_mutex> lock(sessions[session_id]->mutex);
             // Read a message into the buffer
             ws.read(buffer);
-
+            lock.unlock();
             // Convert the buffer to bytes
             std::vector<uint8_t> bytes(buffers_begin(buffer.data()), buffers_end(buffer.data()));
 
             // Get the action type
             int action = *(int*)(bytes.data());
+            std::cout << "X: " << std::endl;
 
             // If action is board type
             if (action == board) {
@@ -69,11 +69,11 @@ void do_session(int session_id, std::unordered_map<int, std::shared_ptr<channel>
 
             // Clear the buffer
             buffer.consume(buffer.size());
-
+            // Pausa el programa durante 200 milisegundos
+            std::this_thread::sleep_for(std::chrono::milliseconds(200));
             // Libera el bloqueo antes de esperar para el siguiente mensaje
-            lock.unlock();
-            // Aquí podría poner alguna lógica de pausa o espera, si fuera necesario.
-            lock.lock();
+            
+
         }
     }
     catch(boost::beast::system_error const& se)
@@ -98,7 +98,7 @@ int main()
         std::unordered_map<int, GameTab*> games;
         std::unordered_map<int, TableTab*> tables;
 
-        for (int i=0; i<30; i++) {
+        for (int i=1; i<31; i++) {
 
             GameTab* gameTab = new GameTab;
             

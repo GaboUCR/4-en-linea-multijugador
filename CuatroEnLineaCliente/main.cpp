@@ -21,7 +21,7 @@
 
 
 Board* ShowBoard(int player_id, int table_id, MyWebSocket* socket) {
-    Board *boardWindow = new Board(player_id, table_id, socket);
+    Board *boardWindow = new Board(socket->getSessionId(), table_id, socket);
     boardWindow->setWindowTitle("Game Board");
 
     return boardWindow;
