@@ -40,8 +40,8 @@ void MyWebSocket::onConnected()
     connect(m_webSocket, &QWebSocket::binaryMessageReceived, this, &MyWebSocket::onMessageReceived);
     connect(m_webSocket, &QWebSocket::errorOccurred, this, &MyWebSocket::onError);
 
-    // Start the heartbeat timer to fire every 200ms
-    m_heartbeatTimer->start(200);
+    // Start the heartbeat timer to fire every 400ms
+    m_heartbeatTimer->start(400);
 }
 
 void MyWebSocket::sendBinaryMessage(const QByteArray &message)
@@ -69,10 +69,9 @@ void MyWebSocket::onMessageReceived(const QByteArray &message)
     if(action == credencial) // si los primeros 4 bytes son 0, sabemos que los siguientes 4 bytes son el ID de la sesión
     {
         session_id = *reinterpret_cast<const int*>(message.constData() + 4);
-        qDebug() << "Session ID: " << session_id;
-        // Aquí puedes emitir una señal o hacer lo que necesites con el ID de la sesión
-    }
-    else if(action == 1) // si los primeros 4 bytes son 1, tenemos un mensaje de cambio de color en el tablero
+        this->session_id = session_id;
+
+    } else if(action == c_board) // si los primeros 4 bytes son 1, tenemos un mensaje de cambio de color en el tablero
     {
         int x = *reinterpret_cast<const int*>(message.constData() + 4);
         int y = *reinterpret_cast<const int*>(message.constData() + 8);

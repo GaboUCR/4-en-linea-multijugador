@@ -21,6 +21,45 @@ void fail(boost::system::error_code ec, char const* what)
     std::cerr << what << ": " << ec.message() << "\n";
 }
 
+void change_board(int table_id, int player_id, int x, int y, std::unordered_map<int, std::shared_ptr<channel>>& sessions, std::unordered_map<int, GameTab*>& games) {
+    std::shared_lock<std::shared_mutex> game_lock(games[table_id]->mutex);
+
+    // Comprobar si es el turno del jugador
+    int current_turn = std::get<0>(games[table_id]->jugadores) == player_id ? 0 : 1;
+    if (games[table_id]->turno != current_turn) {
+        std::cout << "No es el turno del jugador " << player_id << std::endl;
+        return;
+    }
+
+    // Comprobar si la jugada no ha sido realizada
+    for (const auto& move : games[table_id]->tablero) {
+        if (std::get<0>(move) == x && std::get<1>(move) == y) {
+            std::cout << "La jugada ya ha sido realizada." << std::endl;
+            return;
+        }
+    }
+
+    // Añadir la jugada al tablero
+    games[table_id]->tablero.emplace_back(x, y);
+
+    // Cambiar el turno
+    games[table_id]->turno = (games[table_id]->turno + 1) % 2;
+
+    // Crear el mensaje
+    std::vector<uint8_t> message(16, 0);
+    *(int*)(message.data()) = c_board;
+    *(int*)(message.data() + 4) = x;
+    *(int*)(message.data() + 8) = y;
+    *(int*)(message.data() + 12) = current_turn;  // color
+
+    // Enviar el mensaje a ambos jugadores
+    int player1_id = std::get<0>(games[table_id]->jugadores);
+    int player2_id = std::get<1>(games[table_id]->jugadores);
+    write_to_channel(*sessions[player1_id], message);
+    write_to_channel(*sessions[player2_id], message);
+}
+
+
 void do_session(int session_id, std::unordered_map<int, std::shared_ptr<channel>>& sessions, std::unordered_map<int, GameTab*>& games, std::unordered_map<int, TableTab*>& tables)
 {
     try
@@ -43,7 +82,6 @@ void do_session(int session_id, std::unordered_map<int, std::shared_ptr<channel>
 
             // Get the action type
             int action = *(int*)(bytes.data());
-            std::cout << "X: " << std::endl;
 
             // If action is board type
             if (action == board) {
@@ -64,13 +102,14 @@ void do_session(int session_id, std::unordered_map<int, std::shared_ptr<channel>
                 std::cout << "X: " << board_msg.x << std::endl;
                 std::cout << "Y: " << board_msg.y << std::endl;
 
-                // Now you can do whatever you want with board_msg
+                // Aquí se llama change board
+                change_board(board_msg.table_id, board_msg.player_id, board_msg.x, board_msg.y, sessions, games);
             }
 
             // Clear the buffer
             buffer.consume(buffer.size());
             // Pausa el programa durante 200 milisegundos
-            std::this_thread::sleep_for(std::chrono::milliseconds(200));
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
             // Libera el bloqueo antes de esperar para el siguiente mensaje
             
 
@@ -118,6 +157,12 @@ int main()
 
             tables[i] = tableTab;
         }
+
+        // para el primer avance se va a utiliza la mesa 2, se debe borrar este codigo
+        std::tuple<int, int> jugadores(0, 1);
+        games[2]->jugadores = jugadores;
+        games[2]->turno = 0;
+        
 
         auto const address = boost::asio::ip::make_address("0.0.0.0");
         auto const port = static_cast<unsigned short>(std::atoi("8080"));

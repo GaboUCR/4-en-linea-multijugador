@@ -26,8 +26,8 @@ struct TableTab {
 
 // comunicación servidor-cliente
 enum {
-    credencial = 0
-    
+    credencial = 0,
+    c_board = 1
 };
 
 // comunicación cliente-servidor

@@ -8,7 +8,7 @@
 
 enum {
     credencial = 0,
-    board = 1
+    c_board = 1
 
 };
 

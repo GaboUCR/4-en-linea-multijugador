@@ -8,8 +8,8 @@
 #include "WS.hpp"
 
 enum ButtonColor {
-    RED,
-    YELLOW
+    RED = 0,
+    YELLOW = 1
 };
 
 class Board : public QWidget
@@ -17,7 +17,7 @@ class Board : public QWidget
     Q_OBJECT
 
 public:
-    Board(int player_id, int table_id, MyWebSocket* socket, QWidget *parent = nullptr);
+    Board(int table_id, MyWebSocket* socket, QWidget *parent = nullptr);
     void changeButtonColor(int row, int col, int color);
     void SetWebSocket (MyWebSocket* m_socket);
 signals:

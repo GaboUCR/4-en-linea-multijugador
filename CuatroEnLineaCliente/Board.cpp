@@ -39,7 +39,7 @@ void Board::handleButtonClicked()
             stream.setByteOrder(QDataStream::LittleEndian);
 
             stream << (int)0;  // Action
-            stream << player_id;
+            stream << m_socket->getSessionId();
             stream << table;
             stream << row;
             stream << clicked_col;
@@ -53,8 +53,8 @@ void Board::handleButtonClicked()
 
 }
 
-Board::Board(int player_id, int table_id, MyWebSocket* socket, QWidget *parent)
-    : QWidget(parent), player_id(player_id), table(table_id), m_socket(socket)
+Board::Board(int table_id, MyWebSocket* socket, QWidget *parent)
+    : QWidget(parent), table(table_id), m_socket(socket)
 {
 
     connect(socket, &MyWebSocket::boardColorChanged, this, &Board::changeButtonColor);
@@ -112,12 +112,29 @@ void Board::changeButtonColor(int row, int col, int color)
     }
 
     QPushButton *button = buttons[row][col];
+    boardState[row][col] = 1;
+
+    QString baseStyle =
+        "QPushButton {"
+        "  background-color: %1;"
+        "  border: 1px solid black;"
+        "  border-radius: 35px;"
+        "  min-width: 70px;"
+        "  max-width: 70px;"
+        "  min-height: 70px;"
+        "  max-height: 70px;"
+        "} "
+        "QPushButton:pressed {"
+        "  background-color: %1;"
+        "}";
+
     if (color == RED) {
-        button->setStyleSheet("QPushButton { background-color: red; } QPushButton:pressed { background-color: red; }");
+        button->setStyleSheet(baseStyle.arg("red"));
     } else if (color == YELLOW) {
-        button->setStyleSheet("QPushButton { background-color: yellow; } QPushButton:pressed { background-color: yellow; }");
+        button->setStyleSheet(baseStyle.arg("yellow"));
     }
 }
+
 
 void Board::resizeEvent(QResizeEvent *event)
 {   //@todo Ajustar diseño responsive

@@ -20,8 +20,8 @@
 #include "Players.hpp"
 
 
-Board* ShowBoard(int player_id, int table_id, MyWebSocket* socket) {
-    Board *boardWindow = new Board(socket->getSessionId(), table_id, socket);
+Board* ShowBoard(int table_id, MyWebSocket* socket) {
+    Board *boardWindow = new Board(table_id, socket);
     boardWindow->setWindowTitle("Game Board");
 
     return boardWindow;
@@ -184,7 +184,7 @@ QWidget* ShowGameWindow(const QString& player1, const QString& player2, int tabl
     QVBoxLayout *layoutMain = new QVBoxLayout;
 
     QWidget* playersWidget = ShowPlayers(player1, player2, tableNumber);
-    Board* boardWidget = ShowBoard(1,4,m_socket);
+    Board* boardWidget = ShowBoard(4,m_socket);
 
     layoutMain->addWidget(playersWidget);
     layoutMain->addWidget(boardWidget);
@@ -210,7 +210,7 @@ int main(int argc, char *argv[]) {
 
     qDebug() << mySocket->getSessionId();
 
-    auto e = ShowBoard(1,2, mySocket);
+    auto e = ShowBoard(2, mySocket);
 
     e->show();
 
