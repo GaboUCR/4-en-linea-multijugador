@@ -27,9 +27,9 @@ Board* ShowBoard(int table_id, MyWebSocket* socket) {
     return boardWindow;
 }
 
-QWidget* ShowPlayers(const QString& player1, const QString& player2, int tableNumber) {
+QWidget* ShowPlayers(const QString& player1, const QString& player2, int tableNumber, MyWebSocket *socket) {
 
-    Players *playersWindow = new Players(player1, player2, tableNumber);
+    Players *playersWindow = new Players(player1, player2, tableNumber, socket);
 
     return playersWindow;
 }
@@ -183,8 +183,8 @@ QWidget* ShowGameWindow(const QString& player1, const QString& player2, int tabl
 
     QVBoxLayout *layoutMain = new QVBoxLayout;
 
-    QWidget* playersWidget = ShowPlayers(player1, player2, tableNumber);
-    Board* boardWidget = ShowBoard(4,m_socket);
+    QWidget* playersWidget = ShowPlayers(player1, player2, tableNumber, m_socket);
+    Board* boardWidget = ShowBoard(2,m_socket);
 
     layoutMain->addWidget(playersWidget);
     layoutMain->addWidget(boardWidget);
@@ -206,11 +206,9 @@ int main(int argc, char *argv[]) {
 
     MyWebSocket *mySocket = new MyWebSocket(url);
 
-    qDebug() << "Hola";
+//    auto e = ShowBoard(2, mySocket);
 
-    qDebug() << mySocket->getSessionId();
-
-    auto e = ShowBoard(2, mySocket);
+    auto e = ShowGameWindow("Gabriel","Fabian",2, mySocket);
 
     e->show();
 

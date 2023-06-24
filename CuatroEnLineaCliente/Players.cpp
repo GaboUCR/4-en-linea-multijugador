@@ -1,7 +1,8 @@
 #include "Players.hpp"
+#include "WS.hpp"
 
-Players::Players(const QString& player1, const QString& player2, int tableNumber, QWidget *parent)
-    : QWidget(parent)
+Players::Players(const QString& player1, const QString& player2, int tableNumber, MyWebSocket* socket, QWidget *parent)
+    : QWidget(parent), m_socket(socket)
 {
     this->setWindowTitle("Players Window");
 
@@ -28,5 +29,20 @@ Players::Players(const QString& player1, const QString& player2, int tableNumber
     layoutMain->addWidget(player2PixmapLabel, 0, 3, 1, 1);
     layoutMain->addWidget(player2Label, 0, 4, 1, 1);
 
+    connect(m_socket, &MyWebSocket::changeTurn, this, &Players::changeTurnIndicator);
+
     this->setLayout(layoutMain);
+}
+
+void Players::changeTurnIndicator(bool isPlayer1Turn) {
+    QPixmap uncheckedPixmap(":/imagenes/unchecked.png");
+    QPixmap checkedPixmap(":/imagenes/checked.png");
+
+    if (isPlayer1Turn) {
+        player1PixmapLabel->setPixmap(checkedPixmap);
+        player2PixmapLabel->setPixmap(uncheckedPixmap);
+    } else {
+        player1PixmapLabel->setPixmap(uncheckedPixmap);
+        player2PixmapLabel->setPixmap(checkedPixmap);
+    }
 }

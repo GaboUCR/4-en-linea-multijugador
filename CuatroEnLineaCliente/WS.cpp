@@ -68,8 +68,8 @@ void MyWebSocket::onMessageReceived(const QByteArray &message)
 
     if(action == credencial) // si los primeros 4 bytes son 0, sabemos que los siguientes 4 bytes son el ID de la sesión
     {
-        session_id = *reinterpret_cast<const int*>(message.constData() + 4);
-        this->session_id = session_id;
+        this->session_id = *reinterpret_cast<const int*>(message.constData() + 4);
+
 
     } else if(action == c_board) // si los primeros 4 bytes son 1, tenemos un mensaje de cambio de color en el tablero
     {
@@ -78,6 +78,7 @@ void MyWebSocket::onMessageReceived(const QByteArray &message)
         int color = *reinterpret_cast<const int*>(message.constData() + 12);
 
         emit boardColorChanged(x, y, color);
+        emit changeTurn(color);
     }
 
     // Handle other binary messages here

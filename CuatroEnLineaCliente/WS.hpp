@@ -24,6 +24,7 @@ public:
 
 signals:
     void boardColorChanged(int x, int y, int color);
+    void changeTurn(bool isPlayer1Turn);
 public slots:
 
     void onConnected();

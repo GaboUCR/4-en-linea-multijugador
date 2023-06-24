@@ -135,7 +135,6 @@ void Board::changeButtonColor(int row, int col, int color)
     }
 }
 
-
 void Board::resizeEvent(QResizeEvent *event)
 {   //@todo Ajustar diseño responsive
     QSize size = event->size();
