@@ -24,8 +24,8 @@ build: configure
 	$(CMAKE) --build $(BUILD_DIR) --target all
 
 	cd $(BUILD_DIR) && windeployqt.exe .
-	start cmd /c "cd $(BUILD_DIR) && CuatroEnLineaCliente.exe"
-	start cmd /c "cd $(BUILD_DIR) && CuatroEnLineaCliente.exe"
+	cmd.exe /c "cd $(BUILD_DIR) && start CuatroEnLineaCliente.exe"
+	cmd.exe /c "cd $(BUILD_DIR) && start CuatroEnLineaCliente.exe"
 
 # Limpiar los archivos de compilación
 clean:
