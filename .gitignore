@@ -31,7 +31,9 @@ tags
 .DS_Store
 .directory
 *.debug
-Makefile*
+html/*
+latex/*
+
 *.prl
 *.app
 moc_*.cpp
@@ -42,7 +44,7 @@ Thumbs.db
 *.rc
 /.qmake.cache
 /.qmake.stash
-
+server/programa
 # qtcreator generated files
 *.pro.user*
 CMakeLists.txt.user*
@@ -67,7 +69,7 @@ CMakeLists.txt.user*
 *.opensdf
 *.vcxproj
 *vcxproj.*
-
+*.vscode*
 # MinGW generated files
 *.Debug
 *.Release

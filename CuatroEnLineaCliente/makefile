@@ -8,7 +8,11 @@ CMAKE := cmake
 GENERATOR := "MinGW Makefiles"
 BUILD_DIR := build
 # Objetivo por defecto: construir el proyecto
-all: build
+all: build doc
+
+doc: 
+	cd .. && doxygen Doxyfile
+	cd .. && start html/index.html
 
 # Crear el directorio de compilación y ejecutar CMake
 configure:
