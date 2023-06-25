@@ -7,35 +7,79 @@
 #include <QResizeEvent>
 #include "WS.hpp"
 
+/**
+ * @enum ButtonColor
+ * @brief Enumeración para representar los colores de los botones.
+ */
 enum ButtonColor {
-    RED = 0,
-    YELLOW = 1
+    RED = 0, /**< Representa el color rojo. */
+    YELLOW = 1 /**< Representa el color amarillo. */
 };
 
+/**
+ * @class Board
+ * @brief Clase que representa el tablero del juego.
+ *
+ * Esta clase es responsable de gestionar el tablero de juego.
+ * Contiene un grid de botones y se encarga de cambiar el color de los botones.
+ */
 class Board : public QWidget
 {
     Q_OBJECT
 
 public:
+    /**
+     * @brief Constructor de la clase Board.
+     * @param table_id Identificador de la mesa de juego.
+     * @param socket Puntero al objeto websocket para comunicaciones en tiempo real.
+     * @param parent Puntero al widget padre. Es nulo por defecto.
+     */
     Board(int table_id, MyWebSocket* socket, QWidget *parent = nullptr);
+
+    /**
+     * @brief Cambia el color de un botón en el tablero.
+     * @param row Fila del botón.
+     * @param col Columna del botón.
+     * @param color Color del botón (enum ButtonColor).
+     */
     void changeButtonColor(int row, int col, int color);
+
+    /**
+     * @brief Establece el WebSocket para comunicaciones en tiempo real.
+     * @param m_socket Puntero al objeto websocket.
+     */
     void SetWebSocket (MyWebSocket* m_socket);
+
 signals:
+    /**
+     * @brief Señal emitida cuando un botón es presionado.
+     * @param x Coordenada x del botón presionado.
+     * @param y Coordenada y del botón presionado.
+     * @param player_id Identificador del jugador que presionó el botón.
+     * @param table_id Identificador de la mesa de juego.
+     */
     void buttonClicked(int x, int y, int player_id, int table_id);
 
 private slots:
+    /**
+     * @brief Manejador para cuando se presiona un botón.
+     */
     void handleButtonClicked();
 
 protected:
+    /**
+     * @brief Maneja el evento de redimensionado del widget.
+     * @param event Puntero al objeto QResizeEvent.
+     */
     void resizeEvent(QResizeEvent *event) override;
 
 private:
-    QGridLayout *gridLayout;
-    QPushButton *buttons[7][7];  // Aquí guardamos los punteros a los botones
-    MyWebSocket* m_socket;
-    int boardState[7][7];
-    int player_id;
-    int table;
+    QGridLayout *gridLayout;    /**< Layout en cuadrícula que contiene los botones. */
+    QPushButton *buttons[7][7]; /**< Matriz de botones del tablero. */
+    MyWebSocket* m_socket;      /**< Puntero al objeto WebSocket para comunicación en tiempo real. */
+    int boardState[7][7];       /**< Estado del tablero de juego. */
+    int player_id;              /**< Identificador del jugador. */
+    int table;                  /**< Identificador de la mesa de juego. */
 };
 
 #endif
