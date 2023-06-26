@@ -24,6 +24,10 @@ set(PROJECT_SOURCES
         WS.hpp
         Players.hpp
         Players.cpp
+        GameLobbyWindow.cpp
+        GameLobbyWindow.hpp
+        MesaWindow.cpp
+        MesaWindow.hpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

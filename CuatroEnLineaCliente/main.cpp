@@ -18,7 +18,7 @@
 #include <QtNetwork>
 #include "Board.h"
 #include "Players.hpp"
-
+#include "GameLobbyWindow.hpp"
 
 Board* ShowBoard(int table_id, MyWebSocket* socket) {
     Board *boardWindow = new Board(table_id, socket);
@@ -202,23 +202,18 @@ int main(int argc, char *argv[]) {
 
     QApplication app(argc, argv);
 
-    QUrl url = QUrl("ws://localhost:8080");
+//    QUrl url = QUrl("ws://localhost:8080");
 
-    MyWebSocket *mySocket = new MyWebSocket(url);
+//    MyWebSocket *mySocket = new MyWebSocket(url);
 
 //    auto e = ShowBoard(2, mySocket);
 
-    auto e = ShowGameWindow("Gabriel","Fabian",2, mySocket);
+//    auto e = ShowGameWindow("Gabriel","Fabian",2, mySocket);
 
-    e->show();
+//    e->show();
+    GameLobbyWindow gameLobbyWindow;
+    gameLobbyWindow.show();
 
-    //QWidget* e = ShowGameWindow("gabo", "gabo2", 9);
-
-    //e->show();
-
-   // QTimer::singleShot(0, [e]() {
-     //   e->changeButtonColor(0, 0, YELLOW);
-    //});
 
     return app.exec();
 }
