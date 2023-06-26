@@ -21,7 +21,8 @@ enum {
     board = 0,
     table = 1,
     nulo = 2,
-    account = 3
+    login = 3,
+    signin = 4
 };
 
 /**

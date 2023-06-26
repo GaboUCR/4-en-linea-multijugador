@@ -21,14 +21,17 @@ using tcp = boost::asio::ip::tcp;
 // comunicación servidor-cliente
 enum {
     credencial = 0,
-    c_board = 1
+    c_board = 1,
+    c_account = 2
 };
 
 // comunicación cliente-servidor
 enum {
     board = 0,
     table = 1,
-    nulo = 2
+    nulo = 2,
+    login = 3,
+    signin = 4
 };
 
 

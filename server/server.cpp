@@ -104,6 +104,26 @@ void do_session(int session_id, std::unordered_map<int, std::shared_ptr<channel>
 
                 // Aquí se llama change board
                 change_board(board_msg.table_id, board_msg.player_id, board_msg.x, board_msg.y, sessions, games);
+
+            } else if (action == signin) {
+                // Procesar registro de usuario
+                std::string username(bytes.begin() + 4, bytes.begin() + 19);
+                std::string password(bytes.begin() + 19, bytes.begin() + 39);
+
+                std::cout << "Sign In - Username: " << username << std::endl;
+                std::cout << "Sign In - Password: " << password << std::endl;
+
+                // Aquí podrías también guardar el nuevo usuario en la base de datos, etc.
+
+            } else if (action == login) {
+                // Procesar inicio de sesión
+                std::string username(bytes.begin() + 4, bytes.begin() + 19);
+                std::string password(bytes.begin() + 19, bytes.begin() + 39);
+
+                std::cout << "Log In - Username: " << username << std::endl;
+                std::cout << "Log In - Password: " << password << std::endl;
+
+                // Aquí podrías también verificar el nombre de usuario y la contraseña con la base de datos, etc.
             }
 
             // Clear the buffer

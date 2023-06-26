@@ -71,7 +71,7 @@ void MyWebSocket::onMessageReceived(const QByteArray &message)
         this->session_id = *reinterpret_cast<const int*>(message.constData() + 4);
 
 
-    } else if(action == c_board) // si los primeros 4 bytes son 1, tenemos un mensaje de cambio de color en el tablero
+    } else if(action == table) // si los primeros 4 bytes son 1, tenemos un mensaje de cambio de color en el tablero
     {
         int x = *reinterpret_cast<const int*>(message.constData() + 4);
         int y = *reinterpret_cast<const int*>(message.constData() + 8);
@@ -80,7 +80,7 @@ void MyWebSocket::onMessageReceived(const QByteArray &message)
         emit boardColorChanged(x, y, color);
         emit changeTurn(color);
 
-    } else if (action == account)
+    } else if (action == c_account)
     {
         // Suponiendo que el mensaje tiene la siguiente estructura:
         // [action(4 bytes), username(15 bytes), wins(4 bytes)]

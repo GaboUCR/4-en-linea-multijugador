@@ -32,6 +32,8 @@ set(PROJECT_SOURCES
         Account.cpp
         NavBarWidget.cpp
         NavBarWidget.hpp
+        NavBarU.cpp
+        NavBarU.hpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
