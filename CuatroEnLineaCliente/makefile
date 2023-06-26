@@ -16,6 +16,7 @@ doc:
 
 # Crear el directorio de compilación y ejecutar CMake
 configure:
+	if exist $(BUILD_DIR) rd /S /Q $(BUILD_DIR)
 	mkdir $(BUILD_DIR)
 	cd $(BUILD_DIR) && $(CMAKE) -G $(GENERATOR) ..
 
