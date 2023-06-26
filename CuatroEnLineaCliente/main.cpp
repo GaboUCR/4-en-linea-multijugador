@@ -19,6 +19,8 @@
 #include "Board.h"
 #include "Players.hpp"
 #include "GameLobbyWindow.hpp"
+#include "Account.hpp"
+#include "NavBarWidget.hpp"
 
 Board* ShowBoard(int table_id, MyWebSocket* socket) {
     Board *boardWindow = new Board(table_id, socket);
@@ -116,66 +118,43 @@ QWidget* ShowNavBarU() {
     return window;
 }
 
-QWidget* ShowAccount() {
-    QWidget *accountWindow = new QWidget;
-    accountWindow->setWindowTitle("Account");
+//QWidget* ShowNavBar() {
+//    QWidget *window = new QWidget;
+//    window->setWindowTitle("NavBar");
 
-    QVBoxLayout *layoutAccount = new QVBoxLayout;
+//    QHBoxLayout *layoutNavBar = new QHBoxLayout;
 
-    QLabel *usernameLabel = new QLabel("Gabo");
-    QLabel *winsLabel = new QLabel("15 partidas ganadas");
+//    QPushButton *gameLogoButton = new QPushButton("Game Logo");
+//    QPushButton *previousGamesButton = new QPushButton("Previous Games");
+//    QPushButton *userButton = new QPushButton("User");
 
-    QFont font;
-    font.setPointSize(20);
-    font.setBold(true);
-    usernameLabel->setFont(font);
-    winsLabel->setFont(font);
+//    layoutNavBar->addWidget(gameLogoButton);
+//    layoutNavBar->addWidget(previousGamesButton);
+//    layoutNavBar->addWidget(userButton);
 
-    layoutAccount->addWidget(usernameLabel);
-    layoutAccount->addWidget(winsLabel);
+//    // Crear el widget de la Cuenta
+//    QWidget *accountWidget = ShowAccount();
 
-    accountWindow->setLayout(layoutAccount);
+//    // Crear otros widgets que se necesiten
+//    QWidget *otherWidget = new QWidget; // Widget de marcador de posición
 
-    return accountWindow;
-}
+//    // Crear el QStackedWidget y agregar los widgets
+//    QStackedWidget *stackedWidget = new QStackedWidget;
+//    stackedWidget->addWidget(otherWidget);
+//    stackedWidget->addWidget(accountWidget);
 
-QWidget* ShowNavBar() {
-    QWidget *window = new QWidget;
-    window->setWindowTitle("NavBar");
+//    // Conectar las señales de los botones para cambiar el widget mostrado
+//    QObject::connect(userButton, &QPushButton::clicked, [stackedWidget](){ stackedWidget->setCurrentIndex(1); });
+//    // Conectar otros botones según sea necesario...
 
-    QHBoxLayout *layoutNavBar = new QHBoxLayout;
+//    QVBoxLayout *layoutMain = new QVBoxLayout;
+//    layoutMain->addLayout(layoutNavBar);
+//    layoutMain->addWidget(stackedWidget);
 
-    QPushButton *gameLogoButton = new QPushButton("Game Logo");
-    QPushButton *previousGamesButton = new QPushButton("Previous Games");
-    QPushButton *userButton = new QPushButton("User");
+//    window->setLayout(layoutMain);
 
-    layoutNavBar->addWidget(gameLogoButton);
-    layoutNavBar->addWidget(previousGamesButton);
-    layoutNavBar->addWidget(userButton);
-
-    // Crear el widget de la Cuenta
-    QWidget *accountWidget = ShowAccount();
-
-    // Crear otros widgets que se necesiten
-    QWidget *otherWidget = new QWidget; // Widget de marcador de posición
-
-    // Crear el QStackedWidget y agregar los widgets
-    QStackedWidget *stackedWidget = new QStackedWidget;
-    stackedWidget->addWidget(otherWidget);
-    stackedWidget->addWidget(accountWidget);
-
-    // Conectar las señales de los botones para cambiar el widget mostrado
-    QObject::connect(userButton, &QPushButton::clicked, [stackedWidget](){ stackedWidget->setCurrentIndex(1); });
-    // Conectar otros botones según sea necesario...
-
-    QVBoxLayout *layoutMain = new QVBoxLayout;
-    layoutMain->addLayout(layoutNavBar);
-    layoutMain->addWidget(stackedWidget);
-
-    window->setLayout(layoutMain);
-
-    return window;
-}
+//    return window;
+//}
 
 QWidget* ShowGameWindow(const QString& player1, const QString& player2, int tableNumber, MyWebSocket* m_socket) {
     QWidget *gameWindow = new QWidget;
@@ -202,18 +181,20 @@ int main(int argc, char *argv[]) {
 
     QApplication app(argc, argv);
 
-//    QUrl url = QUrl("ws://localhost:8080");
+    QUrl url = QUrl("ws://localhost:8080");
 
-//    MyWebSocket *mySocket = new MyWebSocket(url);
+    MyWebSocket *mySocket = new MyWebSocket(url);
 
 //    auto e = ShowBoard(2, mySocket);
 
 //    auto e = ShowGameWindow("Gabriel","Fabian",2, mySocket);
 
 //    e->show();
-    GameLobbyWindow gameLobbyWindow;
-    gameLobbyWindow.show();
+//    GameLobbyWindow gameLobbyWindow;
+//    gameLobbyWindow.show();
 
+    NavBarWidget * e = new NavBarWidget(mySocket);
 
+    e -> show();
     return app.exec();
 }

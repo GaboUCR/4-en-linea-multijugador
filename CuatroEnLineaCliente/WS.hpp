@@ -9,9 +9,19 @@
 /**
  * Enumeración para tipos de mensajes.
  */
+// comunicación servidor-cliente
 enum {
-    credencial = 0, /**< Mensaje de credenciales. */
-    c_board = 1     /**< Mensaje de tablero. */
+    credencial = 0,
+    c_board = 1,
+    c_account = 2
+};
+
+// comunicación cliente-servidor
+enum {
+    board = 0,
+    table = 1,
+    nulo = 2,
+    account = 3
 };
 
 /**
@@ -65,6 +75,8 @@ signals:
      * @param isPlayer1Turn Indica si es el turno del jugador 1.
      */
     void changeTurn(bool isPlayer1Turn);
+
+    void accountInfoReceived(const QString &username, int wins);
 
 public slots:
     /**

@@ -28,6 +28,10 @@ set(PROJECT_SOURCES
         GameLobbyWindow.hpp
         MesaWindow.cpp
         MesaWindow.hpp
+        Account.hpp
+        Account.cpp
+        NavBarWidget.cpp
+        NavBarWidget.hpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

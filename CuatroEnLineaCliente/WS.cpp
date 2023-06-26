@@ -79,8 +79,22 @@ void MyWebSocket::onMessageReceived(const QByteArray &message)
 
         emit boardColorChanged(x, y, color);
         emit changeTurn(color);
-    }
 
+    } else if (action == account)
+    {
+        // Suponiendo que el mensaje tiene la siguiente estructura:
+        // [action(4 bytes), username(15 bytes), wins(4 bytes)]
+
+        // Obtener el nombre de usuario
+        const char* usernamePtr = message.constData() + 4;
+        QString username = QString::fromUtf8(usernamePtr, 15).trimmed();
+
+        // Obtener las partidas ganadas
+        int wins = *reinterpret_cast<const int*>(message.constData() + 4 + 15);
+
+        // Emitir la señal con la información de la cuenta
+        emit accountInfoReceived(username, wins);
+    }
     // Handle other binary messages here
 }
 
