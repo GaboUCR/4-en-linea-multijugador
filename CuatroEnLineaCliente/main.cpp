@@ -65,19 +65,10 @@ int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
 
     QUrl url = QUrl("ws://localhost:8080");
-
     MyWebSocket *mySocket = new MyWebSocket(url);
 
-//    auto e = ShowBoard(2, mySocket);
-
-//    auto e = ShowGameWindow("Gabriel","Fabian",2, mySocket);
-
-//    e->show();
-//    GameLobbyWindow gameLobbyWindow;
-//    gameLobbyWindow.show();
-
-//    NavBarWidget* e = new NavBarWidget (mySocket);
     Game* e = new Game (mySocket);
     e -> show();
+
     return app.exec();
 }

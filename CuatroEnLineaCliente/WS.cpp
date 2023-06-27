@@ -104,7 +104,21 @@ void MyWebSocket::onMessageReceived(const QByteArray &message)
     {
         //emitir señal para mostrar mensaje en NavbarU
         emit invalidCredentials();
+    } else if (action == c_account)
+    {
+        // Obtener el nombre de usuario
+        const char* usernamePtr = message.constData() + 4;
+        QString username = QString::fromUtf8(usernamePtr, 15).trimmed();
+
+        // Obtener las partidas ganadas
+        int wins = *reinterpret_cast<const int*>(message.constData() + 4 + 15);
+
+        int loss = *reinterpret_cast<const int*>(message.constData() + 4 + 4 + 15);
+        // Emitir la señal con la información de la cuenta
+        emit accountInfoReceived(username, wins, loss);
     }
+    }
+
 }
 
 
