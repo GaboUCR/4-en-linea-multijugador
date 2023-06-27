@@ -1,6 +1,7 @@
 #include "NavBarWidget.hpp"
 #include "Account.hpp"
 #include "WS.hpp"
+#include "GameLobbyWindow.hpp"
 
 NavBarWidget::NavBarWidget(MyWebSocket* m_socket, QWidget *parent) : QWidget(parent)
 {
@@ -20,19 +21,19 @@ NavBarWidget::NavBarWidget(MyWebSocket* m_socket, QWidget *parent) : QWidget(par
     layoutNavBar->addWidget(userButton);
 
     // Crear el widget de la Cuenta
-    Account *accountWidget = new Account (m_socket); // Suponiendo que ShowAccount está implementado en algún lugar
+    Account *accountWidget = new Account(m_socket);
 
-    // Crear otros widgets que se necesiten
-    QWidget *otherWidget = new QWidget; // Widget de marcador de posición
+    // Crear el widget GameLobbyWindow
+    GameLobbyWindow *gameLobbyWindow = new GameLobbyWindow;
 
     // Crear el QStackedWidget y agregar los widgets
     stackedWidget = new QStackedWidget;
-    stackedWidget->addWidget(otherWidget);
-    stackedWidget->addWidget(accountWidget);
+    stackedWidget->addWidget(gameLobbyWindow); // Índice 0
+    stackedWidget->addWidget(accountWidget); // Índice 1
 
     // Conectar las señales de los botones para cambiar el widget mostrado
+    QObject::connect(gameLogoButton, &QPushButton::clicked, [this](){ stackedWidget->setCurrentIndex(0); });
     QObject::connect(userButton, &QPushButton::clicked, [this](){ stackedWidget->setCurrentIndex(1); });
-    // Conectar otros botones según sea necesario...
 
     // Crear el layout principal y agregar los layouts de la barra de navegación y el QStackedWidget
     layoutMain = new QVBoxLayout;
