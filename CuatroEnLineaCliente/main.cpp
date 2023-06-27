@@ -68,6 +68,7 @@ int main(int argc, char *argv[]) {
     MyWebSocket *mySocket = new MyWebSocket(url);
 
     Game* e = new Game (mySocket);
+//    Board* e = ShowBoard(2, mySocket);
     e -> show();
 
     return app.exec();

@@ -13,14 +13,43 @@
 #include <thread>
 #include <chrono>
 #include "DatabaseManager.hpp"
-
+#include <climits>
+#include <algorithm>
 using tcp = boost::asio::ip::tcp;       
 namespace websocket = boost::beast::websocket;
+
+uint32_t toLittleEndian(uint32_t value) {
+    static const int num = 1;
+    if (*(char *)&num == 1) {
+        // El sistema ya está en little endian, no es necesario cambiarlo
+        return value;
+    } else {
+        // Convertir de big endian a little endian
+        value = ((value << 8) & 0xFF00FF00) | ((value >> 8) & 0xFF00FF);
+        return (value << 16) | (value >> 16);
+    }
+}
+
+int fromLittleEndian(int value) {
+    // Si la máquina es little-endian, no es necesario cambiar nada
+    if (boost::endian::order::native == boost::endian::order::little) {
+        return value;
+    } 
+    // Si es big-endian, cambiamos el orden de los bytes
+    else {
+        return ((value >> 24) & 0x000000FF) |
+               ((value >> 8)  & 0x0000FF00) |
+               ((value << 8)  & 0x00FF0000) |
+               ((value << 24) & 0xFF000000);
+    }
+}
+
 
 void fail(boost::system::error_code ec, char const* what)
 {
     std::cerr << what << ": " << ec.message() << "\n";
 }
+
 
 void change_board(int table_id, int player_id, int x, int y, std::unordered_map<int, std::shared_ptr<channel>>& sessions, std::unordered_map<int, GameTab*>& games) {
     std::shared_lock<std::shared_mutex> game_lock(games[table_id]->mutex);
@@ -48,10 +77,11 @@ void change_board(int table_id, int player_id, int x, int y, std::unordered_map<
 
     // Crear el mensaje
     std::vector<uint8_t> message(16, 0);
-    *(int*)(message.data()) = c_board;
-    *(int*)(message.data() + 4) = x;
-    *(int*)(message.data() + 8) = y;
-    *(int*)(message.data() + 12) = current_turn;  // color
+    *(int*)(message.data()) = toLittleEndian(c_board);
+    *(int*)(message.data() + 4) = toLittleEndian(x);
+    *(int*)(message.data() + 8) = toLittleEndian(y);
+    *(int*)(message.data() + 12) = toLittleEndian(current_turn);
+
 
     // Enviar el mensaje a ambos jugadores
     int player1_id = std::get<0>(games[table_id]->jugadores);
@@ -66,6 +96,7 @@ void do_session(int session_id, std::unordered_map<int, std::shared_ptr<channel>
     try
     {
         auto& ws = *(sessions[session_id]->session);
+
         auto dbManager  = new DatabaseManager("p.db");
 
         for (;;)
@@ -78,7 +109,7 @@ void do_session(int session_id, std::unordered_map<int, std::shared_ptr<channel>
 
             std::vector<uint8_t> bytes(buffers_begin(buffer.data()), buffers_end(buffer.data()));
 
-            int action = *(int*)(bytes.data());
+            int action = fromLittleEndian(*(int*)(bytes.data()));
 
             // If action is board type
             if (action == board) {
@@ -88,10 +119,10 @@ void do_session(int session_id, std::unordered_map<int, std::shared_ptr<channel>
 
                 // Start from the 5th byte (index 4) because the first 4 bytes are for the action type
 
-                board_msg.player_id = *(int*)(bytes.data() + 4);
-                board_msg.table_id = *(int*)(bytes.data() + 8);
-                board_msg.x = *(int*)(bytes.data() + 12);
-                board_msg.y = *(int*)(bytes.data() + 16);
+                board_msg.player_id = fromLittleEndian(*(int*)(bytes.data() + 4));
+                board_msg.table_id = fromLittleEndian(*(int*)(bytes.data() + 8));
+                board_msg.x = fromLittleEndian(*(int*)(bytes.data() + 12));
+                board_msg.y = fromLittleEndian(*(int*)(bytes.data() + 16));
 
                 // Print the board_msg data
                 std::cout << "Player ID: " << board_msg.player_id << std::endl;
@@ -120,20 +151,22 @@ void do_session(int session_id, std::unordered_map<int, std::shared_ptr<channel>
                     
                     // Tamaño de la respuesta = 4 (acción) + 15 (nombre de usuario) + 4 (victorias) + 4 (derrotas)
                     response.resize(4 + 15 + 4 + 4);
-                    *(int*)response.data() = c_logged; // successful registration
+                    *(int*)response.data() = toLittleEndian(c_logged);
+                    *(int*)(response.data() + 4 + 15) = toLittleEndian(wins);
+                    *(int*)(response.data() + 4 + 15 + 4) = toLittleEndian(losses);
                     std::copy(username.begin(), username.end(), response.begin() + 4);
-                    *(int*)(response.data() + 4 + 15) = wins; // Agregar victorias
-                    *(int*)(response.data() + 4 + 15 + 4) = losses; // Agregar derrotas
+
                 }
                 else
                 {
                     response.resize(4);
-                    *(int*)response.data() = c_not_logged; // failed registration
+                    *(int*)response.data() = toLittleEndian(c_not_logged); // failed registration
                 }
                 write_to_channel(*sessions[session_id], response);
             }
             else if (action == login)
-            {
+            {   
+                
                 std::string username(bytes.begin() + 4, bytes.begin() + 19);
                 std::string password(bytes.begin() + 19, bytes.begin() + 39);
 
@@ -149,18 +182,17 @@ void do_session(int session_id, std::unordered_map<int, std::shared_ptr<channel>
 
                     // Rellenar el nombre de usuario con espacios hasta llegar a 15 caracteres
                     username.resize(15, ' ');
-                    
-                    // Tamaño de la respuesta = 4 (acción) + 15 (nombre de usuario) + 4 (victorias) + 4 (derrotas)
+
                     response.resize(4 + 15 + 4 + 4);
-                    *(int*)response.data() = c_logged; // successful login
+                    *(int*)response.data() = toLittleEndian(c_logged);
+                    *(int*)(response.data() + 4 + 15) = toLittleEndian(wins);
+                    *(int*)(response.data() + 4 + 15 + 4) = toLittleEndian(losses);
                     std::copy(username.begin(), username.end(), response.begin() + 4);
-                    *(int*)(response.data() + 4 + 15) = wins; // Agregar victorias
-                    *(int*)(response.data() + 4 + 15 + 4) = losses; // Agregar derrotas
                 }
                 else
                 {
                     response.resize(4);
-                    *(int*)response.data() = c_not_logged; // failed login
+                    *(int*)response.data() = toLittleEndian(c_not_logged); // failed registration
                 }
                 write_to_channel(*sessions[session_id], response);
             } 
@@ -282,7 +314,7 @@ int main()
             std::unique_lock<std::shared_mutex> lock(sessions[session_id]->mutex);
             std::vector<uint8_t> message(8, 0); // crea un vector de 8 bytes, inicializado a 0
             *(int*)(message.data()) = 0; // los primeros 4 bytes son 0
-            *(int*)(message.data() + 4) = session_id; // los siguientes 4 bytes son el id de la sesión
+            *(int*)(message.data() + 4) = toLittleEndian(session_id); // los siguientes 4 bytes son el id de la sesión
             boost::beast::flat_buffer buffer;
             buffer.commit(boost::asio::buffer_copy(buffer.prepare(message.size()), boost::asio::buffer(message)));
             sessions[session_id]->session->binary(true);

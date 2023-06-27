@@ -24,6 +24,7 @@ private:
     QPushButton *player1Button;
     QPushButton *player2Button;
     QVBoxLayout *layout;
+    int mesaNumber;
 };
 
 #endif // MESAWINDOW_HPP

@@ -38,7 +38,7 @@ void Board::handleButtonClicked()
             stream.setVersion(QDataStream::Qt_5_15);
             stream.setByteOrder(QDataStream::LittleEndian);
 
-            stream << (int)0;  // Action
+            stream << (int)board;  // Action
             stream << m_socket->getSessionId();
             stream << table;
             stream << row;

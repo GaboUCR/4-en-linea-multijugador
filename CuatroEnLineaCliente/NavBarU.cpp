@@ -71,27 +71,6 @@ NavBarU::NavBarU(MyWebSocket* m_socket, QWidget *parent)
     setLayout(layoutMain);
 }
 
-void NavBarU::onLoginSubmit()
-{
-    QString username = usernameLoginLineEdit->text();
-    QString password = passwordLoginLineEdit->text();
-
-    QByteArray message;
-    message.resize(4 + 15 + 20);
-    int sus = login;
-
-    QByteArray usernameBytes = username.toLocal8Bit();
-    usernameBytes.append(15 - usernameBytes.size(), ' ');
-
-    QByteArray passwordBytes = password.toLocal8Bit();
-    passwordBytes.append(20 - passwordBytes.size(), ' ');
-
-    std::memcpy(message.data(), &sus, 4);
-    std::memcpy(message.data() + 4, usernameBytes.data(), 15);
-    std::memcpy(message.data() + 19, passwordBytes.data(), 20);
-
-    m_socket->sendBinaryMessage(message);
-}
 
 void NavBarU::onInvalidCredentials() {
     registerMessageLabel->setText("Credenciales incorrectas, intente de nuevo.");
@@ -106,21 +85,45 @@ void NavBarU::onRegisterSubmit()
 
     if (password == confirmPassword) {
         QByteArray message;
-        message.resize(4 + 15 + 20);
+        QDataStream stream(&message, QIODevice::WriteOnly);
+        stream.setVersion(QDataStream::Qt_5_15);
+        stream.setByteOrder(QDataStream::LittleEndian);
+
         int reg = signin;
+        stream << reg;
 
-        QByteArray usernameBytes = username.toLocal8Bit();
-        usernameBytes.append(15 - usernameBytes.size(), ' ');
+        QByteArray usernameBytes = username.toLocal8Bit().leftJustified(15, ' ');
+        stream.writeRawData(usernameBytes.data(), 15);
 
-        QByteArray passwordBytes = password.toLocal8Bit();
-        passwordBytes.append(20 - passwordBytes.size(), ' ');
-
-        std::memcpy(message.data(), &reg, 4);
-        std::memcpy(message.data() + 4, usernameBytes.data(), 15);
-        std::memcpy(message.data() + 19, passwordBytes.data(), 20);
+        QByteArray passwordBytes = password.toLocal8Bit().leftJustified(20, ' ');
+        stream.writeRawData(passwordBytes.data(), 20);
 
         m_socket->sendBinaryMessage(message);
     } else {
         qDebug() << "Passwords do not match.";
     }
 }
+
+void NavBarU::onLoginSubmit()
+{
+    QString username = usernameLoginLineEdit->text();
+    QString password = passwordLoginLineEdit->text();
+
+    QByteArray message;
+    QDataStream stream(&message, QIODevice::WriteOnly);
+    stream.setVersion(QDataStream::Qt_5_15);
+    stream.setByteOrder(QDataStream::LittleEndian);
+
+    int sus = login;
+    stream << sus;
+
+    QByteArray usernameBytes = username.toLocal8Bit().leftJustified(15, ' ');
+    stream.writeRawData(usernameBytes.data(), 15);
+
+    QByteArray passwordBytes = password.toLocal8Bit().leftJustified(20, ' ');
+    stream.writeRawData(passwordBytes.data(), 20);
+
+
+    m_socket->sendBinaryMessage(message);
+}
+

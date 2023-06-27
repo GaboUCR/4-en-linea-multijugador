@@ -78,59 +78,57 @@ void MyWebSocket::onMessageReceived(const QByteArray &message)
 {
     QMutexLocker locker(&m_mutex);
 
-    int action = *reinterpret_cast<const int*>(message.constData());
+    // Crea un QDataStream a partir de QByteArray para poder especificar el endianness
+    QDataStream dataStream(message);
+    dataStream.setByteOrder(QDataStream::LittleEndian); // Establece little endian
 
-    if(action == credencial) // si los primeros 4 bytes son 0, sabemos que los siguientes 4 bytes son el ID de la sesión
+    // Lee la acción
+    int action;
+    dataStream >> action;
+
+    if(action == credencial)
     {
-        this->session_id = *reinterpret_cast<const int*>(message.constData() + 4);
-
-
-    } else if(action == table) // si los primeros 4 bytes son 1, tenemos un mensaje de cambio de color en el tablero
+        // Lee el session_id como little endian
+        dataStream >> this->session_id;
+        qDebug() << this->session_id;
+    }
+    else if(action == table)
     {
-        int x = *reinterpret_cast<const int*>(message.constData() + 4);
-        int y = *reinterpret_cast<const int*>(message.constData() + 8);
-        int color = *reinterpret_cast<const int*>(message.constData() + 12);
+        int x, y, color;
+        // Lee x, y, y color como little endian
+        dataStream >> x >> y >> color;
 
         emit boardColorChanged(x, y, color);
         emit changeTurn(color);
-
-    } else if (action == c_logged)
-    {
-        // Suponiendo que el mensaje tiene la siguiente estructura:
-        // [action(4 bytes), username(15 bytes), wins(4 bytes)]
-
-        // Obtener el nombre de usuario
-        const char* usernamePtr = message.constData() + 4;
-        QString username = QString::fromUtf8(usernamePtr, 15).trimmed();
-        this->m_username = username;
-
-        // Obtener las partidas ganadas
-        int wins = *reinterpret_cast<const int*>(message.constData() + 4 + 15);
-
-        int loss = *reinterpret_cast<const int*>(message.constData() + 4 + 4 + 15);
-        // Emitir la señal con la información de la cuenta
-        emit accountInfoReceived(username, wins, loss);
-        // Emitir la señal de autenticación del usuario
-        emit userAuthenticated();
-
-    } else if (action == c_not_logged)
-    {
-        //emitir señal para mostrar mensaje en NavbarU
-        emit invalidCredentials();
-    } else if (action == c_account)
-    {
-        // Obtener el nombre de usuario
-        const char* usernamePtr = message.constData() + 4;
-        QString username = QString::fromUtf8(usernamePtr, 15).trimmed();
-        this->m_username = username;
-        // Obtener las partidas ganadas
-        int wins = *reinterpret_cast<const int*>(message.constData() + 4 + 15);
-
-        int loss = *reinterpret_cast<const int*>(message.constData() + 4 + 4 + 15);
-        // Emitir la señal con la información de la cuenta
-        emit accountInfoReceived(username, wins, loss);
     }
+    else if (action == c_logged || action == c_account)
+    {
+        // Lee el username
+        char usernameChars[16];
+        dataStream.readRawData(usernameChars, 15);
+        usernameChars[15] = '\0'; // Null-terminar la cadena
+        QString username = QString::fromUtf8(usernameChars).trimmed();
 
+        // Lee las partidas ganadas y perdidas como little endian
+        int wins, loss;
+        dataStream >> wins >> loss;
+
+        // Emitir la señal con la información de la cuenta
+        emit accountInfoReceived(username, wins, loss);
+
+        this->m_username = username;
+
+        if (action == c_logged)
+        {
+            // Emitir la señal de autenticación del usuario
+            emit userAuthenticated();
+        }
+    }
+    else if (action == c_not_logged)
+    {
+        // Emitir señal para mostrar mensaje en NavbarU
+        emit invalidCredentials();
+    }
 }
 
 void MyWebSocket::onError(QAbstractSocket::SocketError error)
