@@ -64,6 +64,10 @@ public:
      */
     int getSessionId();
 
+    QString getUsername();
+
+    void setUsername(const QString &username);
+
 signals:
     /**
      * @brief Señal emitida cuando el color de una casilla del tablero cambia.
@@ -114,6 +118,7 @@ public slots:
 private:
     QWebSocket *m_webSocket;      /**< Puntero al objeto WebSocket. */
     int session_id;               /**< ID de la sesión actual. */
+    QString m_username;
     QMutex m_mutex;               /**< Mutex para sincronización. */
     QTimer* m_heartbeatTimer;     /**< Temporizador para enviar heartbeats. */
 };

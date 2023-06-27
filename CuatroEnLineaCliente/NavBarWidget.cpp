@@ -24,7 +24,7 @@ NavBarWidget::NavBarWidget(MyWebSocket* m_socket, QWidget *parent) : QWidget(par
     Account *accountWidget = new Account(m_socket);
 
     // Crear el widget GameLobbyWindow
-    GameLobbyWindow *gameLobbyWindow = new GameLobbyWindow;
+    GameLobbyWindow *gameLobbyWindow = new GameLobbyWindow(m_socket);
 
     // Crear el QStackedWidget y agregar los widgets
     stackedWidget = new QStackedWidget;

@@ -3,17 +3,19 @@
 
 #include <QMainWindow>
 #include <QGridLayout>
+#include "WS.hpp"
 
 class GameLobbyWindow : public QMainWindow
 {
     Q_OBJECT
 
 public:
-    explicit GameLobbyWindow(QWidget *parent = nullptr);
+    explicit GameLobbyWindow(MyWebSocket* m_socket,QWidget *parent = nullptr);
 
 private:
     QGridLayout *gridLayout;
     QWidget *centralWidget;
+    MyWebSocket * m_socket;
 };
 
 #endif // GAMELOBBYWINDOW_HPP

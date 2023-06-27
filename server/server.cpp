@@ -146,7 +146,7 @@ void do_session(int session_id, std::unordered_map<int, std::shared_ptr<channel>
 
                     // Obtenemos las victorias y derrotas del usuario
                     auto [wins, losses] = dbManager->getPlayerWinLossRecord(username);
-                    
+
                     // Rellenar el nombre de usuario con espacios hasta llegar a 15 caracteres
                     username.resize(15, ' ');
                     
@@ -163,6 +163,21 @@ void do_session(int session_id, std::unordered_map<int, std::shared_ptr<channel>
                     *(int*)response.data() = c_not_logged; // failed login
                 }
                 write_to_channel(*sessions[session_id], response);
+            } 
+            else if (action == table) {
+                // Leer el nombre del jugador que es de 15 bytes, empezando desde el índice 4.
+                std::string username(bytes.begin() + 4, bytes.begin() + 4 + 15);
+
+                // Eliminar espacios en blanco al final del nombre de usuario.
+                username.erase(std::find_if(username.rbegin(), username.rend(), [](unsigned char ch) { return !std::isspace(ch); }).base(), username.end());
+
+                // Leer el ID de la sesión que es un entero de 4 bytes después del nombre del usuario.
+                int sessionId = *(int*)(bytes.data() + 4 + 15);
+
+                // Imprimir el mensaje en el servidor
+                std::cout << "Action: TABLE" << std::endl;
+                std::cout << "Username: " << username << std::endl;
+                std::cout << "Session ID: " << sessionId << std::endl;
             }
 
 
@@ -172,14 +187,15 @@ void do_session(int session_id, std::unordered_map<int, std::shared_ptr<channel>
     }
     catch (boost::beast::system_error const& se)
     {
+        // Cuando el WebSocket se cierra normalmente, no necesitamos imprimir un error.
         if (se.code() != websocket::error::closed)
             std::cerr << "Error: " << se.code().message() << "\n";
-        return;
+        else
+            std::cerr << "WebSocket closed normally.\n";
     }
     catch (std::exception const& e)
     {
         std::cerr << "Error: " << e.what() << "\n";
-        return;
     }
 }
 

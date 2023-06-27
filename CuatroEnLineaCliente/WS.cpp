@@ -32,7 +32,18 @@ MyWebSocket::~MyWebSocket()
     delete m_webSocket;
 }
 
+void MyWebSocket::setUsername(const QString &username) {
+
+    m_username = username;
+}
+
+QString MyWebSocket::getUsername(){
+
+    return m_username;
+}
+
 int MyWebSocket::getSessionId(){
+
     return session_id;
 }
 
@@ -41,7 +52,8 @@ void MyWebSocket::onConnected()
 
     connect(m_webSocket, &QWebSocket::binaryMessageReceived, this, &MyWebSocket::onMessageReceived);
     connect(m_webSocket, &QWebSocket::errorOccurred, this, &MyWebSocket::onError);
-
+    connect(m_webSocket, &QWebSocket::disconnected, this, &MyWebSocket::onDisconnected);
+    connect(m_webSocket, QOverload<QAbstractSocket::SocketError>::of(&QWebSocket::error), this, &MyWebSocket::onError);
     // Start the heartbeat timer to fire every 400ms
     m_heartbeatTimer->start(400);
 }
@@ -90,6 +102,7 @@ void MyWebSocket::onMessageReceived(const QByteArray &message)
         // Obtener el nombre de usuario
         const char* usernamePtr = message.constData() + 4;
         QString username = QString::fromUtf8(usernamePtr, 15).trimmed();
+        this->m_username = username;
 
         // Obtener las partidas ganadas
         int wins = *reinterpret_cast<const int*>(message.constData() + 4 + 15);
@@ -109,7 +122,7 @@ void MyWebSocket::onMessageReceived(const QByteArray &message)
         // Obtener el nombre de usuario
         const char* usernamePtr = message.constData() + 4;
         QString username = QString::fromUtf8(usernamePtr, 15).trimmed();
-
+        this->m_username = username;
         // Obtener las partidas ganadas
         int wins = *reinterpret_cast<const int*>(message.constData() + 4 + 15);
 
@@ -117,22 +130,32 @@ void MyWebSocket::onMessageReceived(const QByteArray &message)
         // Emitir la señal con la información de la cuenta
         emit accountInfoReceived(username, wins, loss);
     }
-    }
 
 }
 
-
-
 void MyWebSocket::onError(QAbstractSocket::SocketError error)
 {
-    qDebug() << "WebSocket error: " << error;
-    qDebug() << "Error message: " << m_webSocket->errorString();
+    // Podemos mejorar la impresión de mensajes de error haciendo un switch en el tipo de error.
+    qDebug() << "WebSocket encountered an error:";
+    switch (error) {
+    case QAbstractSocket::ConnectionRefusedError:
+        qDebug() << "The connection was refused by the peer (or timed out).";
+        break;
+    case QAbstractSocket::RemoteHostClosedError:
+        qDebug() << "The remote host closed the connection. Note that the client socket (i.e., this socket) will be closed after the remote close notification has been acknowledged.";
+        break;
+    // ... Add cases for other types of errors ...
+    default:
+        qDebug() << "Error message: " << m_webSocket->errorString();
+    }
 }
 
 void MyWebSocket::onDisconnected()
 {
-    QMutexLocker locker(&m_mutex);
-    // Stop the heartbeat timer when disconnected
+    // Detener el temporizador de latido al desconectarse
     m_heartbeatTimer->stop();
-    // Handle disconnection here
+
+    // Imprimir un mensaje en la consola informando que el WebSocket se desconectó.
+    qDebug() << "WebSocket disconnected.";
 }
+
