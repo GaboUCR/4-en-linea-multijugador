@@ -22,6 +22,7 @@ public:
 private slots:
     void onLoginSubmit();
     void onRegisterSubmit();
+    void onInvalidCredentials();
 
 private:
     QLineEdit* usernameLoginLineEdit;
@@ -29,6 +30,8 @@ private:
     QLineEdit* usernameRegisterLineEdit;
     QLineEdit* passwordRegisterLineEdit;
     QLineEdit* confirmPasswordRegisterLineEdit;
+    QLabel* loginMessageLabel;
+    QLabel* registerMessageLabel;
     MyWebSocket * m_socket;
 };
 

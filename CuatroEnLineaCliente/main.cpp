@@ -74,8 +74,8 @@ int main(int argc, char *argv[]) {
 //    GameLobbyWindow gameLobbyWindow;
 //    gameLobbyWindow.show();
 
-    NavBarWidget* e = new NavBarWidget (mySocket);
-
+//    NavBarWidget* e = new NavBarWidget (mySocket);
+    NavBarU* e = new NavBarU (mySocket);
     e -> show();
     return app.exec();
 }

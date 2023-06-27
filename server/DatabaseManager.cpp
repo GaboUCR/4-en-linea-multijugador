@@ -1,7 +1,7 @@
 #include "DatabaseManager.hpp"
 #include <iostream>
 #include <sqlite3.h>
-
+#include <tuple>
 
 DatabaseManager::DatabaseManager(const std::string& dbPath) {
     sqlite3_open(dbPath.c_str(), &db);
@@ -13,11 +13,12 @@ DatabaseManager::~DatabaseManager() {
 }
 
 void DatabaseManager::createTable() {
-    std::lock_guard<std::mutex> lock(dbMutex);
+
     const char* sql = "CREATE TABLE IF NOT EXISTS players("
                       "username TEXT PRIMARY KEY,"
                       "password TEXT NOT NULL,"
-                      "wins INTEGER DEFAULT 0);";
+                      "wins INTEGER DEFAULT 0,"
+                      "losses INTEGER DEFAULT 0);";
 
     char* errorMessage = 0;
     int result = sqlite3_exec(db, sql, 0, 0, &errorMessage);
@@ -48,7 +49,7 @@ void DatabaseManager::addPlayer(const std::string& username, const std::string& 
 }
 
 bool DatabaseManager::authenticatePlayer(const std::string& username, const std::string& password) {
-    std::lock_guard<std::mutex> lock(dbMutex);
+
     std::string sql = "SELECT * FROM players WHERE username = ? AND password = ?;";
 
     sqlite3_stmt* stmt;
@@ -66,7 +67,7 @@ bool DatabaseManager::authenticatePlayer(const std::string& username, const std:
 }
 
 bool DatabaseManager::registerPlayer(const std::string& username, const std::string& password) {
-    std::lock_guard<std::mutex> lock(dbMutex);
+
     std::string sql = "SELECT * FROM players WHERE username = ?;";
 
     sqlite3_stmt* stmt;
@@ -89,3 +90,34 @@ bool DatabaseManager::registerPlayer(const std::string& username, const std::str
     return true; // Usuario registrado con éxito
 }
 
+std::tuple<int, int> DatabaseManager::getPlayerWinLossRecord(const std::string& username) {
+    
+    const char* sql = "SELECT wins, losses FROM players WHERE username = ?";
+
+    sqlite3_stmt* stmt;
+    int result = sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr);
+
+    if (result != SQLITE_OK) {
+        std::cerr << "Error preparing statement: " << sqlite3_errmsg(db) << std::endl;
+        return std::make_tuple(-1, -1); // Indicar error con valores negativos
+    }
+
+    sqlite3_bind_text(stmt, 1, username.c_str(), -1, SQLITE_STATIC);
+
+    result = sqlite3_step(stmt);
+
+    if (result == SQLITE_ROW) {
+        int wins = sqlite3_column_int(stmt, 0);
+        int losses = sqlite3_column_int(stmt, 1);
+        sqlite3_finalize(stmt);
+        return std::make_tuple(wins, losses);
+    } else if (result == SQLITE_DONE) {
+        std::cerr << "No record found for username: " << username << std::endl;
+        sqlite3_finalize(stmt);
+        return std::make_tuple(-1, -1); // Indicar que no se encontraron registros
+    } else {
+        std::cerr << "Error executing query: " << sqlite3_errmsg(db) << std::endl;
+        sqlite3_finalize(stmt);
+        return std::make_tuple(-1, -1); // Indicar error con valores negativos
+    }
+}

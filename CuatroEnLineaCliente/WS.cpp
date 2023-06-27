@@ -4,6 +4,8 @@
 #include <QtNetwork>
 #include <QMutex>
 #include <QTimer>
+#include <QMessageBox>
+
 
 MyWebSocket::MyWebSocket(const QUrl &url, QObject *parent) :
     QObject(parent),
@@ -80,7 +82,7 @@ void MyWebSocket::onMessageReceived(const QByteArray &message)
         emit boardColorChanged(x, y, color);
         emit changeTurn(color);
 
-    } else if (action == c_account)
+    } else if (action == c_logged)
     {
         // Suponiendo que el mensaje tiene la siguiente estructura:
         // [action(4 bytes), username(15 bytes), wins(4 bytes)]
@@ -92,11 +94,18 @@ void MyWebSocket::onMessageReceived(const QByteArray &message)
         // Obtener las partidas ganadas
         int wins = *reinterpret_cast<const int*>(message.constData() + 4 + 15);
 
+        int loss = *reinterpret_cast<const int*>(message.constData() + 4 + 4 + 15);
         // Emitir la señal con la información de la cuenta
-        emit accountInfoReceived(username, wins);
+        emit accountInfoReceived(username, wins, loss);
+
+    } else if (action == c_not_logged)
+    {
+        //emitir señal para mostrar mensaje en NavbarU
+        emit invalidCredentials();
     }
-    // Handle other binary messages here
 }
+
+
 
 void MyWebSocket::onError(QAbstractSocket::SocketError error)
 {

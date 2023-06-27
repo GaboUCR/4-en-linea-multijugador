@@ -2,11 +2,13 @@
 
 NavBarU::NavBarU(MyWebSocket* m_socket, QWidget *parent)
     : QWidget(parent), m_socket(m_socket),
-      usernameLoginLineEdit(new QLineEdit),
-      passwordLoginLineEdit(new QLineEdit),
-      usernameRegisterLineEdit(new QLineEdit),
-      passwordRegisterLineEdit(new QLineEdit),
-      confirmPasswordRegisterLineEdit(new QLineEdit)
+    usernameLoginLineEdit(new QLineEdit),
+    passwordLoginLineEdit(new QLineEdit),
+    usernameRegisterLineEdit(new QLineEdit),
+    passwordRegisterLineEdit(new QLineEdit),
+    confirmPasswordRegisterLineEdit(new QLineEdit),
+    loginMessageLabel(new QLabel),
+    registerMessageLabel(new QLabel)
 {
     setWindowTitle("NavBarU");
 
@@ -16,6 +18,10 @@ NavBarU::NavBarU(MyWebSocket* m_socket, QWidget *parent)
 
     layoutNavBar->addWidget(loginButton);
     layoutNavBar->addWidget(signinButton);
+    connect(m_socket, &MyWebSocket::invalidCredentials, this, &NavBarU::onInvalidCredentials);
+
+    loginMessageLabel->setText("");
+    registerMessageLabel->setText("");
 
     // Formulario de Login
     QFormLayout *loginLayout = new QFormLayout;
@@ -23,6 +29,7 @@ NavBarU::NavBarU(MyWebSocket* m_socket, QWidget *parent)
     loginLayout->addRow(new QLabel("Password:"), passwordLoginLineEdit);
     QPushButton *loginSubmitButton = new QPushButton("Submit");
     loginLayout->addWidget(loginSubmitButton);
+    loginLayout->addWidget(loginMessageLabel); // Agrega el mensaje debajo del formulario de login
 
     QWidget *loginWidget = new QWidget;
     loginWidget->setLayout(loginLayout);
@@ -34,6 +41,7 @@ NavBarU::NavBarU(MyWebSocket* m_socket, QWidget *parent)
     registerLayout->addRow(new QLabel("Confirm Password:"), confirmPasswordRegisterLineEdit);
     QPushButton *registerSubmitButton = new QPushButton("Submit");
     registerLayout->addWidget(registerSubmitButton);
+    registerLayout->addWidget(registerMessageLabel); // Agrega el mensaje debajo del formulario de registro
 
     QWidget *registerWidget = new QWidget;
     registerWidget->setLayout(registerLayout);
@@ -63,6 +71,8 @@ NavBarU::NavBarU(MyWebSocket* m_socket, QWidget *parent)
     setLayout(layoutMain);
 }
 
+
+
 void NavBarU::onLoginSubmit()
 {
     QString username = usernameLoginLineEdit->text();
@@ -83,6 +93,11 @@ void NavBarU::onLoginSubmit()
     std::memcpy(message.data() + 19, passwordBytes.data(), 20);
 
     m_socket->sendBinaryMessage(message);
+}
+
+void NavBarU::onInvalidCredentials() {
+    registerMessageLabel->setText("Credenciales incorrectas, intente de nuevo.");
+    loginMessageLabel->setText("Credenciales incorrectas, intente de nuevo.");
 }
 
 void NavBarU::onRegisterSubmit()

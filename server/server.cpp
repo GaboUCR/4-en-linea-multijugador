@@ -113,9 +113,17 @@ void do_session(int session_id, std::unordered_map<int, std::shared_ptr<channel>
                 std::vector<uint8_t> response;
                 if (dbManager->registerPlayer(username, password))
                 {
-                    response.resize(4 + 15);
-                    *(int*)response.data() = c_account; // successful registration
+                    // Obtenemos las victorias y derrotas del usuario
+                    auto [wins, losses] = dbManager->getPlayerWinLossRecord(username);
+                    // Rellenar el nombre de usuario con espacios hasta llegar a 15 caracteres
+                    username.resize(15, ' ');
+                    
+                    // Tamaño de la respuesta = 4 (acción) + 15 (nombre de usuario) + 4 (victorias) + 4 (derrotas)
+                    response.resize(4 + 15 + 4 + 4);
+                    *(int*)response.data() = c_logged; // successful registration
                     std::copy(username.begin(), username.end(), response.begin() + 4);
+                    *(int*)(response.data() + 4 + 15) = wins; // Agregar victorias
+                    *(int*)(response.data() + 4 + 15 + 4) = losses; // Agregar derrotas
                 }
                 else
                 {
@@ -135,9 +143,18 @@ void do_session(int session_id, std::unordered_map<int, std::shared_ptr<channel>
                 std::vector<uint8_t> response;
                 if (dbManager->authenticatePlayer(username, password))
                 {
-                    response.resize(4 + 15);
+                    // Rellenar el nombre de usuario con espacios hasta llegar a 15 caracteres
+                    username.resize(15, ' ');
+                    
+                    // Obtenemos las victorias y derrotas del usuario
+                    auto [wins, losses] = dbManager->getPlayerWinLossRecord(username);
+                    
+                    // Tamaño de la respuesta = 4 (acción) + 15 (nombre de usuario) + 4 (victorias) + 4 (derrotas)
+                    response.resize(4 + 15 + 4 + 4);
                     *(int*)response.data() = c_logged; // successful login
                     std::copy(username.begin(), username.end(), response.begin() + 4);
+                    *(int*)(response.data() + 4 + 15) = wins; // Agregar victorias
+                    *(int*)(response.data() + 4 + 15 + 4) = losses; // Agregar derrotas
                 }
                 else
                 {
@@ -146,6 +163,7 @@ void do_session(int session_id, std::unordered_map<int, std::shared_ptr<channel>
                 }
                 write_to_channel(*sessions[session_id], response);
             }
+
 
             buffer.consume(buffer.size());
             std::this_thread::sleep_for(std::chrono::milliseconds(100));

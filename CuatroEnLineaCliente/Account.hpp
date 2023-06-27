@@ -17,12 +17,13 @@ public:
 
 public slots:
     // Slot para actualizar la información de la cuenta
-    void updateAccountInfo(const QString &username, int wins);
+    void updateAccountInfo(const QString &username, int wins, int loss);
 
 private:
     // Atributos
     QLabel *usernameLabel;
     QLabel *winsLabel;
+    QLabel *lossLabel;
 };
 
 #endif // ACCOUNT_H

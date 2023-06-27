@@ -79,7 +79,8 @@ signals:
      */
     void changeTurn(bool isPlayer1Turn);
 
-    void accountInfoReceived(const QString &username, int wins);
+    void accountInfoReceived(const QString &username, int wins, int loss);
+    void invalidCredentials();
 
 public slots:
     /**

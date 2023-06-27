@@ -11,18 +11,18 @@ Account::Account(MyWebSocket *webSocket, QWidget *parent)
     // Crear etiquetas para el nombre de usuario y las partidas ganadas
     usernameLabel = new QLabel();
     winsLabel = new QLabel();
-
+    lossLabel = new QLabel();
     // Establecer la fuente para las etiquetas
     QFont font;
     font.setPointSize(20);
     font.setBold(true);
     usernameLabel->setFont(font);
     winsLabel->setFont(font);
-
+    lossLabel->setFont(font);
     // Agregar las etiquetas al layout
     layoutAccount->addWidget(usernameLabel);
     layoutAccount->addWidget(winsLabel);
-
+    layoutAccount->addWidget(lossLabel);
     // Establecer el layout para este widget
     this->setLayout(layoutAccount);
 
@@ -30,8 +30,9 @@ Account::Account(MyWebSocket *webSocket, QWidget *parent)
     connect(webSocket, &MyWebSocket::accountInfoReceived, this, &Account::updateAccountInfo);
 }
 
-void Account::updateAccountInfo(const QString &username, int wins) {
+void Account::updateAccountInfo(const QString &username, int wins, int loss) {
     // Actualizar las etiquetas con la nueva información
     usernameLabel->setText(username);
     winsLabel->setText(QString::number(wins) + " partidas ganadas");
+    winsLabel->setText(QString::number(wins) + " partidas perdidas");
 }
