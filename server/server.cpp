@@ -143,11 +143,12 @@ void do_session(int session_id, std::unordered_map<int, std::shared_ptr<channel>
                 std::vector<uint8_t> response;
                 if (dbManager->authenticatePlayer(username, password))
                 {
-                    // Rellenar el nombre de usuario con espacios hasta llegar a 15 caracteres
-                    username.resize(15, ' ');
-                    
+
                     // Obtenemos las victorias y derrotas del usuario
                     auto [wins, losses] = dbManager->getPlayerWinLossRecord(username);
+                    
+                    // Rellenar el nombre de usuario con espacios hasta llegar a 15 caracteres
+                    username.resize(15, ' ');
                     
                     // Tamaño de la respuesta = 4 (acción) + 15 (nombre de usuario) + 4 (victorias) + 4 (derrotas)
                     response.resize(4 + 15 + 4 + 4);

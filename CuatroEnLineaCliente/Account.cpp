@@ -34,5 +34,5 @@ void Account::updateAccountInfo(const QString &username, int wins, int loss) {
     // Actualizar las etiquetas con la nueva información
     usernameLabel->setText(username);
     winsLabel->setText(QString::number(wins) + " partidas ganadas");
-    winsLabel->setText(QString::number(wins) + " partidas perdidas");
+    lossLabel->setText(QString::number(wins) + " partidas perdidas");
 }

@@ -71,8 +71,6 @@ NavBarU::NavBarU(MyWebSocket* m_socket, QWidget *parent)
     setLayout(layoutMain);
 }
 
-
-
 void NavBarU::onLoginSubmit()
 {
     QString username = usernameLoginLineEdit->text();

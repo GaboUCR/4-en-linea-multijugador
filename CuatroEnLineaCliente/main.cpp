@@ -22,6 +22,8 @@
 #include "Account.hpp"
 #include "NavBarWidget.hpp"
 #include "NavBarU.hpp"
+#include "Game.hpp"
+
 
 Board* ShowBoard(int table_id, MyWebSocket* socket) {
     Board *boardWindow = new Board(table_id, socket);
@@ -75,7 +77,7 @@ int main(int argc, char *argv[]) {
 //    gameLobbyWindow.show();
 
 //    NavBarWidget* e = new NavBarWidget (mySocket);
-    NavBarU* e = new NavBarU (mySocket);
+    Game* e = new Game (mySocket);
     e -> show();
     return app.exec();
 }

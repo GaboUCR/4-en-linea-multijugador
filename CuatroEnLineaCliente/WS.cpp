@@ -97,6 +97,8 @@ void MyWebSocket::onMessageReceived(const QByteArray &message)
         int loss = *reinterpret_cast<const int*>(message.constData() + 4 + 4 + 15);
         // Emitir la señal con la información de la cuenta
         emit accountInfoReceived(username, wins, loss);
+        // Emitir la señal de autenticación del usuario
+        emit userAuthenticated();
 
     } else if (action == c_not_logged)
     {

@@ -81,6 +81,7 @@ signals:
 
     void accountInfoReceived(const QString &username, int wins, int loss);
     void invalidCredentials();
+    void userAuthenticated();
 
 public slots:
     /**
