@@ -12,6 +12,7 @@
 #include "channel.hpp"
 #include <thread>
 #include <chrono>
+#include "DatabaseManager.hpp"
 
 using tcp = boost::asio::ip::tcp;       
 namespace websocket = boost::beast::websocket;
@@ -64,23 +65,19 @@ void do_session(int session_id, std::unordered_map<int, std::shared_ptr<channel>
 {
     try
     {
-        // Creamos un puntero para el socket del websocket para facilitar su uso
         auto& ws = *(sessions[session_id]->session);
+        auto dbManager  = new DatabaseManager("p.db");
 
-        for(;;)
+        for (;;)
         {
-            // Create a beast buffer
             boost::beast::flat_buffer buffer;
 
-            // Adquiere el bloqueo para esta sesión
             std::unique_lock<std::shared_mutex> lock(sessions[session_id]->mutex);
-            // Read a message into the buffer
             ws.read(buffer);
             lock.unlock();
-            // Convert the buffer to bytes
+
             std::vector<uint8_t> bytes(buffers_begin(buffer.data()), buffers_end(buffer.data()));
 
-            // Get the action type
             int action = *(int*)(bytes.data());
 
             // If action is board type
@@ -104,50 +101,69 @@ void do_session(int session_id, std::unordered_map<int, std::shared_ptr<channel>
 
                 // Aquí se llama change board
                 change_board(board_msg.table_id, board_msg.player_id, board_msg.x, board_msg.y, sessions, games);
-
-            } else if (action == signin) {
-                // Procesar registro de usuario
+            }
+            else if (action == signin)
+            {
                 std::string username(bytes.begin() + 4, bytes.begin() + 19);
                 std::string password(bytes.begin() + 19, bytes.begin() + 39);
 
-                std::cout << "Sign In - Username: " << username << std::endl;
-                std::cout << "Sign In - Password: " << password << std::endl;
+                username.erase(std::find_if(username.rbegin(), username.rend(), [](unsigned char ch) { return !std::isspace(ch); }).base(), username.end());
+                password.erase(std::find_if(password.rbegin(), password.rend(), [](unsigned char ch) { return !std::isspace(ch); }).base(), password.end());
 
-                // Aquí podrías también guardar el nuevo usuario en la base de datos, etc.
-
-            } else if (action == login) {
-                // Procesar inicio de sesión
+                std::vector<uint8_t> response;
+                if (dbManager->registerPlayer(username, password))
+                {
+                    response.resize(4 + 15);
+                    *(int*)response.data() = c_account; // successful registration
+                    std::copy(username.begin(), username.end(), response.begin() + 4);
+                }
+                else
+                {
+                    response.resize(4);
+                    *(int*)response.data() = c_not_logged; // failed registration
+                }
+                write_to_channel(*sessions[session_id], response);
+            }
+            else if (action == login)
+            {
                 std::string username(bytes.begin() + 4, bytes.begin() + 19);
                 std::string password(bytes.begin() + 19, bytes.begin() + 39);
 
-                std::cout << "Log In - Username: " << username << std::endl;
-                std::cout << "Log In - Password: " << password << std::endl;
+                username.erase(std::find_if(username.rbegin(), username.rend(), [](unsigned char ch) { return !std::isspace(ch); }).base(), username.end());
+                password.erase(std::find_if(password.rbegin(), password.rend(), [](unsigned char ch) { return !std::isspace(ch); }).base(), password.end());
 
-                // Aquí podrías también verificar el nombre de usuario y la contraseña con la base de datos, etc.
+                std::vector<uint8_t> response;
+                if (dbManager->authenticatePlayer(username, password))
+                {
+                    response.resize(4 + 15);
+                    *(int*)response.data() = c_logged; // successful login
+                    std::copy(username.begin(), username.end(), response.begin() + 4);
+                }
+                else
+                {
+                    response.resize(4);
+                    *(int*)response.data() = c_not_logged; // failed login
+                }
+                write_to_channel(*sessions[session_id], response);
             }
 
-            // Clear the buffer
             buffer.consume(buffer.size());
-            // Pausa el programa durante 200 milisegundos
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
-            // Libera el bloqueo antes de esperar para el siguiente mensaje
-            
-
         }
     }
-    catch(boost::beast::system_error const& se)
+    catch (boost::beast::system_error const& se)
     {
-        // This indicates that the session was closed
-        if(se.code() != websocket::error::closed)
+        if (se.code() != websocket::error::closed)
             std::cerr << "Error: " << se.code().message() << "\n";
         return;
     }
-    catch(std::exception const& e)
+    catch (std::exception const& e)
     {
         std::cerr << "Error: " << e.what() << "\n";
         return;
     }
 }
+
 
 int main()
 {

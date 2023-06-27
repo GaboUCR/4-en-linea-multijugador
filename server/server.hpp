@@ -22,9 +22,10 @@ using tcp = boost::asio::ip::tcp;
 enum {
     credencial = 0,
     c_board = 1,
-    c_account = 2
+    c_account = 2,
+    c_logged = 3,
+    c_not_logged = 4
 };
-
 // comunicación cliente-servidor
 enum {
     board = 0,
