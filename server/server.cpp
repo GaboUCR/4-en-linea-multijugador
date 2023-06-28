@@ -121,6 +121,12 @@ void handleTableAction(std::string username, int button, int mesaNumero, int ses
         memcpy(game_start_message.data() + 8, player1_name.c_str(), 15);
         memcpy(game_start_message.data() + 8 + 15, player2_name.c_str(), 15);
 
+        // Se inicializa el tablero de juego
+        std::tuple<int, int> jugadores(player1_session_id, player2_session_id);
+  
+        games[mesaNumero]->jugadores = jugadores;
+        games[mesaNumero]->turno = 0;
+        
         // Enviar el mensaje de inicio del juego a los jugadores en la mesa.
         write_to_channel(*sessions[player1_session_id], game_start_message);
         write_to_channel(*sessions[player2_session_id], game_start_message);
@@ -147,7 +153,6 @@ void fail(boost::system::error_code ec, char const* what)
 {
     std::cerr << what << ": " << ec.message() << "\n";
 }
-
 
 void change_board(int table_id, int player_id, int x, int y, std::unordered_map<int, std::shared_ptr<channel>>& sessions, std::unordered_map<int, GameTab*>& games) {
     std::shared_lock<std::shared_mutex> game_lock(games[table_id]->mutex);
@@ -187,7 +192,6 @@ void change_board(int table_id, int player_id, int x, int y, std::unordered_map<
     write_to_channel(*sessions[player1_id], message);
     write_to_channel(*sessions[player2_id], message);
 }
-
 
 void do_session(int session_id, std::unordered_map<int, std::shared_ptr<channel>>& sessions, std::unordered_map<int, GameTab*>& games, std::unordered_map<int, TableTab*>& tables)
 {
@@ -339,7 +343,6 @@ void do_session(int session_id, std::unordered_map<int, std::shared_ptr<channel>
     }
 }
 
-
 int main()
 {
     try
@@ -371,12 +374,6 @@ int main()
 
             tables[i] = tableTab;
         }
-
-        // para el primer avance se va a utiliza la mesa 2, se debe borrar este codigo
-        std::tuple<int, int> jugadores(0, 1);
-        games[2]->jugadores = jugadores;
-        games[2]->turno = 0;
-        
 
         auto const address = boost::asio::ip::make_address("0.0.0.0");
         auto const port = static_cast<unsigned short>(std::atoi("8080"));
