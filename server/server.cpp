@@ -33,7 +33,7 @@ uint32_t toLittleEndian(uint32_t value) {
     }
 }
 
-void handleTableAction(std::string username, int button, int mesaNumero, int sessionId, std::unordered_map<int, std::shared_ptr<channel>>& sessions, std::unordered_map<int, TableTab*>& tables) {
+void handleTableAction(std::string username, int button, int mesaNumero, int sessionId, std::unordered_map<int, std::shared_ptr<channel>>& sessions, std::unordered_map<int, TableTab*>& tables, std::unordered_map<int, GameTab*>& games) {
     // Actualizar los valores de la mesa
     bool escribir = false;
     {
@@ -88,6 +88,45 @@ void handleTableAction(std::string username, int button, int mesaNumero, int ses
             }
         }
     }
+
+    // Verificar si ambos jugadores están en la mesa y comenzar el juego si es así.
+    bool start_game = false;
+    {
+        std::unique_lock<std::shared_mutex> lock(tables[mesaNumero]->mutex);
+        if (!tables[mesaNumero]->jugador_1.empty() && !tables[mesaNumero]->jugador_2.empty()) {
+            start_game = true;
+        }
+    }
+    
+    if (start_game) {
+        // Crear un mensaje para informar a ambos jugadores que el juego ha comenzado.
+        std::unique_lock<std::shared_mutex> lock(tables[mesaNumero]->mutex);
+        int player1_session_id = tables[mesaNumero]->id_1;
+        int player2_session_id = tables[mesaNumero]->id_2;
+
+        std::string player1_name = tables[mesaNumero]->jugador_1;
+        std::string player2_name = tables[mesaNumero]->jugador_2;
+
+        // Rellenar los nombres de usuario con espacios para que tengan una longitud fija de 15
+        player1_name.resize(15, ' ');
+        player2_name.resize(15, ' ');
+
+        uint32_t c_begin_gamev = c_begin_game;
+        
+        std::vector<uint8_t> game_start_message(4 + 4 + 15 + 15);
+        *(uint32_t*)game_start_message.data() = toLittleEndian(c_begin_gamev); // los primeros 4 bytes son el enum c_begin_game
+        *(uint32_t*)(game_start_message.data() + 4) = toLittleEndian(mesaNumero); // los siguientes 4 bytes son el número de mesa
+        
+        // Agregar los nombres de usuario al mensaje
+        memcpy(game_start_message.data() + 8, player1_name.c_str(), 15);
+        memcpy(game_start_message.data() + 8 + 15, player2_name.c_str(), 15);
+
+        // Enviar el mensaje de inicio del juego a los jugadores en la mesa.
+        write_to_channel(*sessions[player1_session_id], game_start_message);
+        write_to_channel(*sessions[player2_session_id], game_start_message);
+    }
+
+
 }
 
 int fromLittleEndian(int value) {
@@ -277,7 +316,7 @@ void do_session(int session_id, std::unordered_map<int, std::shared_ptr<channel>
                 std::cout << "Username: " << username << std::endl;
                 std::cout << "Session ID: " << sessionId << std::endl;
 
-                handleTableAction(username, button, mesaNumero, sessionId, sessions, tables);
+                handleTableAction(username, button, mesaNumero, sessionId, sessions, tables, games);
 
             }
 

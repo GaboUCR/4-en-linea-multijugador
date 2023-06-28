@@ -149,6 +149,25 @@ void MyWebSocket::onMessageReceived(const QByteArray &message)
         // Emitir la señal para actualizar la mesa
         emit updateMesa(mesaNumero, button, username);
     }
+    else if (action == c_begin_game)
+    {
+        // Leer el número de mesa
+        int tableNumber;
+        dataStream >> tableNumber;
+
+        // Leer los nombres de usuario
+        char player1Chars[16];
+        char player2Chars[16];
+        dataStream.readRawData(player1Chars, 15);
+        dataStream.readRawData(player2Chars, 15);
+        player1Chars[15] = '\0'; // Null-terminar la cadena
+        player2Chars[15] = '\0'; // Null-terminar la cadena
+        QString player1 = QString::fromUtf8(player1Chars).trimmed();
+        QString player2 = QString::fromUtf8(player2Chars).trimmed();
+
+        // Emitir la señal de que el juego ha comenzado
+        emit gameStarted(player1, player2, tableNumber);
+    }
 
 }
 

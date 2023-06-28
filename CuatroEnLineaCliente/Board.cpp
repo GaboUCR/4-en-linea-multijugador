@@ -46,8 +46,6 @@ void Board::handleButtonClicked()
 
             m_socket->sendBinaryMessage(message);
             return;
-
-
         }
     }
 

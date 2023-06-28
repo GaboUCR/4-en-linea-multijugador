@@ -16,7 +16,8 @@ enum {
     c_board = 1,
     c_account = 2,
     c_logged = 3,
-    c_not_logged = 4
+    c_not_logged = 4,
+    c_begin_game = 6
 };
 
 // comunicación cliente-servidor
@@ -88,7 +89,7 @@ signals:
     void invalidCredentials();
     void userAuthenticated();
     void updateMesa(int mesaNumber, int button, const QString &username);
-
+    void gameStarted(const QString& player1, const QString& player2, int tableNumber);
 
 public slots:
     /**

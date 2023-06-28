@@ -36,6 +36,8 @@ set(PROJECT_SOURCES
         NavBarU.hpp
         Game.cpp
         Game.hpp
+        GameWindow.cpp
+        GameWindow.hpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

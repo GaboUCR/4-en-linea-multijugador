@@ -12,6 +12,7 @@ public:
 
 private slots:
     void onUserAuthenticated();
+    void onGameStarted(const QString& player1, const QString& player2, int tableNumber);
 
 private:
     NavBarU *m_navBarU;
