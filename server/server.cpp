@@ -30,6 +30,40 @@ uint32_t toLittleEndian(uint32_t value) {
     }
 }
 
+void handleTableAction(std::string username, int button, int mesaNumero, std::unordered_map<int, std::shared_ptr<channel>>& sessions, std::unordered_map<int, TableTab*>& tables) {
+    // Actualizar los valores de la mesa
+    {
+        std::unique_lock<std::shared_mutex> lock(tables[mesaNumero]->mutex);
+        if (button == 1) {
+            
+            if (tables[mesaNumero]->jugador_1 == ""){
+
+                tables[mesaNumero]->jugador_1 = username;
+            }
+
+        } else if (button == 2) {
+
+            if (tables[mesaNumero]->jugador_2 == ""){
+
+                tables[mesaNumero]->jugador_2 = username;
+            }
+        }   
+        
+    }
+    
+    // Crear el mensaje para enviar a los clientes
+    std::vector<uint8_t> response(4 + 4 + 4 + 15);
+    *(int*)response.data() = toLittleEndian(c_table); // los primeros 4 bytes son el enum c_table
+    *(int*)(response.data() + 4) = toLittleEndian(mesaNumero); // los siguientes 4 bytes son el número de mesa
+    *(int*)(response.data() + 8) = toLittleEndian(button); // los siguientes 4 bytes son el número del botón
+    std::copy(username.begin(), username.end(), response.begin() + 12); // los siguientes 15 bytes son el nombre de usuario
+
+    // Enviar el mensaje a todos los clientes conectados
+    for (auto& [session_id, session] : sessions) {
+        write_to_channel(*session, response);
+    }
+}
+
 int fromLittleEndian(int value) {
     // Si la máquina es little-endian, no es necesario cambiar nada
     if (boost::endian::order::native == boost::endian::order::little) {
@@ -211,13 +245,15 @@ void do_session(int session_id, std::unordered_map<int, std::shared_ptr<channel>
 
                 // Leer el numero de mesa 
                 int mesaNumero = fromLittleEndian(*(int*)(bytes.data()+ 4 + 4 + 15 + 4));
+
                 // Imprimir el mensaje en el servidor
                 std::cout << "table" << mesaNumero  <<std::endl;
                 std::cout << "button " << button  <<std::endl;
                 std::cout << "Username: " << username << std::endl;
                 std::cout << "Session ID: " << sessionId << std::endl;
 
-                // aqui vamos a implementar gpt
+                handleTableAction(username, button, mesaNumero, sessions, tables);
+
             }
 
 
