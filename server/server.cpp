@@ -15,8 +15,11 @@
 #include "DatabaseManager.hpp"
 #include <climits>
 #include <algorithm>
+
 using tcp = boost::asio::ip::tcp;       
 namespace websocket = boost::beast::websocket;
+
+std::mutex sessions_mutex;  // Declara el mutex en un ámbito donde pueda ser accedido por los hilos relevantes
 
 uint32_t toLittleEndian(uint32_t value) {
     static const int num = 1;
@@ -76,10 +79,13 @@ void handleTableAction(std::string username, int button, int mesaNumero, int ses
         *(int*)(response.data() + 4) = toLittleEndian(mesaNumero); // los siguientes 4 bytes son el número de mesa
         *(int*)(response.data() + 8) = toLittleEndian(button); // los siguientes 4 bytes son el número del botón
         std::copy(username.begin(), username.end(), response.begin() + 12); // los siguientes 15 bytes son el nombre de usuario
-
-        // Enviar el mensaje a todos los clientes conectados
-        for (auto& [session_id, session] : sessions) {
-            write_to_channel(*session, response);
+        
+        {    
+            std::lock_guard<std::mutex> lock(sessions_mutex);
+            // Enviar el mensaje a todos los clientes conectados
+            for (auto& [session_id, session] : sessions) {
+                write_to_channel(*session, response);
+            }
         }
     }
 }
@@ -346,7 +352,6 @@ int main()
         tcp::acceptor acceptor{ioc, {address, port}};
 
         std::unordered_map<int, std::shared_ptr<channel>> sessions;
-        std::shared_mutex sessions_mutex;
         int session_id = 0;
 
     for(;;)
@@ -371,7 +376,7 @@ int main()
 
         // Se agrega una nueva sesión
         {
-            std::unique_lock<std::shared_mutex> lock(sessions_mutex);
+            std::lock_guard<std::mutex> lock(sessions_mutex);
             sessions[session_id] = new_channel;
         }            
 
