@@ -392,6 +392,67 @@ int main()
             sessions[session_id]->session->write(buffer.data());
         }
 
+        // Enviar información de todas las mesas al cliente recién conectado
+        
+        // Enviar información de todas las mesas al cliente recién conectado
+    for (int i = 1; i <= 30; i++) { // Asumiendo que hay 30 mesas numeradas de 1 a 30
+        // Para el jugador 1
+        {   
+            std::unique_lock<std::shared_mutex> lock(tables[i]->mutex);
+            std::vector<uint8_t> message;
+            // Empaqueta la acción
+            int action = toLittleEndian(c_table); // Suponiendo que c_table representa la acción de la mesa
+            std::copy((uint8_t*)&action, (uint8_t*)&action + sizeof(action), std::back_inserter(message));
+
+            // Empaqueta el número de mesa
+            int mesaNumero = toLittleEndian(i);
+            std::copy((uint8_t*)&mesaNumero, (uint8_t*)&mesaNumero + sizeof(mesaNumero), std::back_inserter(message));
+
+            // Empaqueta la información del jugador 1
+            int button1 = toLittleEndian(1);
+            std::copy((uint8_t*)&button1, (uint8_t*)&button1 + sizeof(button1), std::back_inserter(message));
+            std::string username1 = tables[i]->jugador_1;
+            username1.resize(15, ' ');
+            std::copy(username1.begin(), username1.end(), std::back_inserter(message));
+
+            // Enviar mensaje al cliente
+            boost::beast::flat_buffer buffer;
+            buffer.commit(boost::asio::buffer_copy(buffer.prepare(message.size()), boost::asio::buffer(message)));
+            sessions[session_id]->session->binary(true);
+            sessions[session_id]->session->write(buffer.data());
+        
+        }
+        
+        {
+        
+            // Para el jugador 2
+            std::unique_lock<std::shared_mutex> lock(tables[i]->mutex);
+            std::vector<uint8_t> message;
+            // Empaqueta la acción
+            int action = toLittleEndian(c_table); // Suponiendo que c_table representa la acción de la mesa
+            std::copy((uint8_t*)&action, (uint8_t*)&action + sizeof(action), std::back_inserter(message));
+
+            // Empaqueta el número de mesa
+            int mesaNumero = toLittleEndian(i);
+            std::copy((uint8_t*)&mesaNumero, (uint8_t*)&mesaNumero + sizeof(mesaNumero), std::back_inserter(message));
+
+            // Empaqueta la información del jugador 2
+            int button2 = toLittleEndian(2);
+            std::copy((uint8_t*)&button2, (uint8_t*)&button2 + sizeof(button2), std::back_inserter(message));
+            std::string username2 = tables[i]->jugador_2;
+            username2.resize(15, ' ');
+            std::copy(username2.begin(), username2.end(), std::back_inserter(message));
+
+            // Enviar mensaje al cliente
+            boost::beast::flat_buffer buffer;
+            buffer.commit(boost::asio::buffer_copy(buffer.prepare(message.size()), boost::asio::buffer(message)));
+            sessions[session_id]->session->binary(true);
+            sessions[session_id]->session->write(buffer.data());
+        }
+    }
+
+
+
         // Launch a new session for this connection
         std::thread(&do_session, session_id, std::ref(sessions), std::ref(games), std::ref(tables)).detach();
         session_id++;
