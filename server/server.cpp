@@ -204,10 +204,12 @@ void do_session(int session_id, std::unordered_map<int, std::shared_ptr<channel>
                 username.erase(std::find_if(username.rbegin(), username.rend(), [](unsigned char ch) { return !std::isspace(ch); }).base(), username.end());
 
                 // Leer el ID de la sesión que es un entero de 4 bytes después del nombre del usuario.
-                int sessionId = *(int*)(bytes.data() + 4 + 15);
+                int sessionId = fromLittleEndian(*(int*)(bytes.data() + 4 + 15));
 
+                // Leer el numero de mesa 
+                int mesaNumero = fromLittleEndian(*(int*)(bytes.data() + 4 + 15 + 4));
                 // Imprimir el mensaje en el servidor
-                std::cout << "Action: TABLE" << std::endl;
+                std::cout << "table" << mesaNumero  <<std::endl;
                 std::cout << "Username: " << username << std::endl;
                 std::cout << "Session ID: " << sessionId << std::endl;
             }

@@ -92,7 +92,7 @@ void MyWebSocket::onMessageReceived(const QByteArray &message)
         dataStream >> this->session_id;
         qDebug() << this->session_id;
     }
-    else if(action == table)
+    else if(action == c_board)
     {
         int x, y, color;
         // Lee x, y, y color como little endian
