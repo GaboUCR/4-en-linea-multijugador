@@ -30,9 +30,6 @@ void MesaWindow::onButtonClicked1()
     QPushButton *button = qobject_cast<QPushButton *>(sender());
     if (button) {
 
-        button->setText(""); // puedes establecer el nombre del jugador dinámicamente
-        button->setIcon(QIcon(":/unchecked.png")); // establece el icono de casilla marcada
-
         QByteArray message;
         QDataStream stream(&message, QIODevice::WriteOnly);
         stream.setVersion(QDataStream::Qt_5_15);
@@ -62,9 +59,6 @@ void MesaWindow::onButtonClicked2()
 {
     QPushButton *button = qobject_cast<QPushButton *>(sender());
     if (button) {
-
-        button->setText(""); // puedes establecer el nombre del jugador dinámicamente
-        button->setIcon(QIcon(":/unchecked.png")); // establece el icono de casilla marcada
 
         QByteArray message;
         QDataStream stream(&message, QIODevice::WriteOnly);

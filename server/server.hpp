@@ -52,6 +52,8 @@ struct GameTab {
  */
 struct TableTab {
     std::string jugador_1;
+    int id_1;
+    int id_2;
     std::string jugador_2;
     std::shared_mutex mutex;
 };

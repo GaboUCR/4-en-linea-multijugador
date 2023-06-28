@@ -30,37 +30,57 @@ uint32_t toLittleEndian(uint32_t value) {
     }
 }
 
-void handleTableAction(std::string username, int button, int mesaNumero, std::unordered_map<int, std::shared_ptr<channel>>& sessions, std::unordered_map<int, TableTab*>& tables) {
+void handleTableAction(std::string username, int button, int mesaNumero, int sessionId, std::unordered_map<int, std::shared_ptr<channel>>& sessions, std::unordered_map<int, TableTab*>& tables) {
     // Actualizar los valores de la mesa
+    bool escribir = false;
     {
         std::unique_lock<std::shared_mutex> lock(tables[mesaNumero]->mutex);
         if (button == 1) {
             
-            if (tables[mesaNumero]->jugador_1 == ""){
+            if (tables[mesaNumero]->jugador_1 == "") {
 
                 tables[mesaNumero]->jugador_1 = username;
+                tables[mesaNumero]->id_1 = sessionId;
+                escribir = true;
+            } 
+            else if (sessionId == tables[mesaNumero]->id_1) {
+                tables[mesaNumero]->jugador_1 = "";
+                tables[mesaNumero]->id_1 = -1;
+                username = "";
+                escribir = true;
             }
 
         } else if (button == 2) {
 
-            if (tables[mesaNumero]->jugador_2 == ""){
+            if (tables[mesaNumero]->jugador_2 == "") {
 
                 tables[mesaNumero]->jugador_2 = username;
+                tables[mesaNumero]->id_2 = sessionId;
+                escribir = true;
+            } 
+            else if (sessionId == tables[mesaNumero]->id_2) {
+
+                tables[mesaNumero]->jugador_2 = "";
+                tables[mesaNumero]->id_2 = -1;
+                username="";
+                escribir = true;
             }
         }   
         
     }
-    
-    // Crear el mensaje para enviar a los clientes
-    std::vector<uint8_t> response(4 + 4 + 4 + 15);
-    *(int*)response.data() = toLittleEndian(c_table); // los primeros 4 bytes son el enum c_table
-    *(int*)(response.data() + 4) = toLittleEndian(mesaNumero); // los siguientes 4 bytes son el número de mesa
-    *(int*)(response.data() + 8) = toLittleEndian(button); // los siguientes 4 bytes son el número del botón
-    std::copy(username.begin(), username.end(), response.begin() + 12); // los siguientes 15 bytes son el nombre de usuario
 
-    // Enviar el mensaje a todos los clientes conectados
-    for (auto& [session_id, session] : sessions) {
-        write_to_channel(*session, response);
+    if (escribir) {
+        // Crear el mensaje para enviar a los clientes
+        std::vector<uint8_t> response(4 + 4 + 4 + 15);
+        *(int*)response.data() = toLittleEndian(c_table); // los primeros 4 bytes son el enum c_table
+        *(int*)(response.data() + 4) = toLittleEndian(mesaNumero); // los siguientes 4 bytes son el número de mesa
+        *(int*)(response.data() + 8) = toLittleEndian(button); // los siguientes 4 bytes son el número del botón
+        std::copy(username.begin(), username.end(), response.begin() + 12); // los siguientes 15 bytes son el nombre de usuario
+
+        // Enviar el mensaje a todos los clientes conectados
+        for (auto& [session_id, session] : sessions) {
+            write_to_channel(*session, response);
+        }
     }
 }
 
@@ -77,7 +97,6 @@ int fromLittleEndian(int value) {
                ((value << 24) & 0xFF000000);
     }
 }
-
 
 void fail(boost::system::error_code ec, char const* what)
 {
@@ -252,7 +271,7 @@ void do_session(int session_id, std::unordered_map<int, std::shared_ptr<channel>
                 std::cout << "Username: " << username << std::endl;
                 std::cout << "Session ID: " << sessionId << std::endl;
 
-                handleTableAction(username, button, mesaNumero, sessions, tables);
+                handleTableAction(username, button, mesaNumero, sessionId, sessions, tables);
 
             }
 
@@ -301,6 +320,9 @@ int main()
 
             tableTab->jugador_1 = "";
             tableTab->jugador_2 = "";
+
+            tableTab->id_1 = -1;
+            tableTab->id_2 = -1;            
 
             tables[i] = tableTab;
         }
