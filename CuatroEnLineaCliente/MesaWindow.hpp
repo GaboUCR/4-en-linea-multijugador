@@ -14,11 +14,13 @@ class MesaWindow : public QWidget
 
 public:
     explicit MesaWindow(MyWebSocket* m_socket, int mesaNumber, QWidget *parent = nullptr);
-
+    // Declara isPlayerOccupied como estática
+    static bool isPlayerOccupied;
 private slots:
     void onButtonClicked1();
     void onButtonClicked2();
     void onUpdateMesa(int mesaNumber, int button, const QString &username);
+
 
 private:
     QLabel *mesaLabel;
@@ -26,6 +28,7 @@ private:
     QPushButton *player1Button;
     QPushButton *player2Button;
     QVBoxLayout *layout;
+
     int mesaNumber;
 };
 

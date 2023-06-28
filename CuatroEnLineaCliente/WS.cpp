@@ -144,6 +144,8 @@ void MyWebSocket::onMessageReceived(const QByteArray &message)
         usernameChars[15] = '\0';
         QString username = QString::fromUtf8(usernameChars).trimmed();
 
+        qDebug() << username << "user";
+
         // Emitir la señal para actualizar la mesa
         emit updateMesa(mesaNumero, button, username);
     }

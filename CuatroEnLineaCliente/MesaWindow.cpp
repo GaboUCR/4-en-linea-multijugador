@@ -6,7 +6,6 @@ MesaWindow::MesaWindow(MyWebSocket* m_socket, int mesaNumber, QWidget *parent) :
 {
     // Setup layout
     layout = new QVBoxLayout(this);
-
     // Setup label with mesa number
     mesaLabel = new QLabel(QString("Mesa %1").arg(mesaNumber), this);
     layout->addWidget(mesaLabel);
@@ -25,33 +24,37 @@ MesaWindow::MesaWindow(MyWebSocket* m_socket, int mesaNumber, QWidget *parent) :
     layout->addWidget(player2Button);
 }
 
+bool MesaWindow::isPlayerOccupied = false;
+
 void MesaWindow::onButtonClicked1()
 {
     QPushButton *button = qobject_cast<QPushButton *>(sender());
     if (button) {
+        if (!isPlayerOccupied || player1Button->text() == m_socket->getUsername()) {
+            QByteArray message;
+            QDataStream stream(&message, QIODevice::WriteOnly);
+            stream.setVersion(QDataStream::Qt_5_15);
+            stream.setByteOrder(QDataStream::LittleEndian);
 
-        QByteArray message;
-        QDataStream stream(&message, QIODevice::WriteOnly);
-        stream.setVersion(QDataStream::Qt_5_15);
-        stream.setByteOrder(QDataStream::LittleEndian);
+            int tablev = table; // Coloca aquí el valor de la enumeración 'table'
+            stream << tablev; // Añade el valor de la enumeración 'table' a la message
 
-        int tablev = table; // Coloca aquí el valor de la enumeración 'table'
-        stream << tablev; // Añade el valor de la enumeración 'table' a la message
+            // Añade el nombre del jugador, asegúrate de que tenga exactamente 15 bytes
+            QString paddedUsername = m_socket->getUsername().leftJustified(15, ' ');
+            stream.writeRawData(paddedUsername.toUtf8().data(), 15);
 
-        // Añade el nombre del jugador, asegúrate de que tenga exactamente 15 bytes
-        QString paddedUsername = m_socket->getUsername().leftJustified(15, ' ');
-        stream.writeRawData(paddedUsername.toUtf8().data(), 15);
+            int Id = m_socket->getSessionId();
+            stream << Id; // Añadir el ID de la sesión
 
-        int Id = m_socket->getSessionId();
-        stream << Id; // Añadir el ID de la sesión
+            int button = 1;
+            stream << button; // Añadir el numero de botón
 
-        int button = 1;
-        stream << button; // Añadir el numero de botón
+            stream << mesaNumber;
 
-        stream << mesaNumber;
-
-        // Envía el mensaje usando el WebSocket
-        m_socket->sendBinaryMessage(message);
+            // Envía el mensaje usando el WebSocket
+            m_socket->sendBinaryMessage(message);
+            isPlayerOccupied = true;
+        }
     }
 }
 
@@ -60,33 +63,43 @@ void MesaWindow::onButtonClicked2()
     QPushButton *button = qobject_cast<QPushButton *>(sender());
     if (button) {
 
-        QByteArray message;
-        QDataStream stream(&message, QIODevice::WriteOnly);
-        stream.setVersion(QDataStream::Qt_5_15);
-        stream.setByteOrder(QDataStream::LittleEndian);
+        if (!isPlayerOccupied || player2Button->text() == m_socket->getUsername()) {
 
-        int tablev = table; // Coloca aquí el valor de la enumeración 'table'
-        stream << tablev; // Añade el valor de la enumeración 'table' a la message
+            QByteArray message;
+            QDataStream stream(&message, QIODevice::WriteOnly);
+            stream.setVersion(QDataStream::Qt_5_15);
+            stream.setByteOrder(QDataStream::LittleEndian);
 
-        // Añade el nombre del jugador, asegúrate de que tenga exactamente 15 bytes
-        QString paddedUsername = m_socket->getUsername().leftJustified(15, ' ');
-        stream.writeRawData(paddedUsername.toUtf8().data(), 15);
+            int tablev = table; // Coloca aquí el valor de la enumeración 'table'
+            stream << tablev; // Añade el valor de la enumeración 'table' a la message
 
-        int Id = m_socket->getSessionId();
-        stream << Id; // Añadir el ID de la sesión
+            // Añade el nombre del jugador, asegúrate de que tenga exactamente 15 bytes
+            QString paddedUsername = m_socket->getUsername().leftJustified(15, ' ');
+            stream.writeRawData(paddedUsername.toUtf8().data(), 15);
 
-        int button = 2;
-        stream << button; // Añadir el numero de botón
+            int Id = m_socket->getSessionId();
+            stream << Id; // Añadir el ID de la sesión
 
-        stream << mesaNumber;
+            int button = 2;
+            stream << button; // Añadir el numero de botón
 
-        // Envía el mensaje usando el WebSocket
-        m_socket->sendBinaryMessage(message);
+            stream << mesaNumber;
+
+            // Envía el mensaje usando el WebSocket
+            m_socket->sendBinaryMessage(message);
+            isPlayerOccupied = true;
+        }
     }
 }
 
 void MesaWindow::onUpdateMesa(int mesaNumber, int button, const QString &username) {
+
     if (mesaNumber == this->mesaNumber) {
+
+        if ((button == 1 && player1Button->text() == m_socket->getUsername() && username == "") ||
+            (button == 2 && player2Button->text() == m_socket->getUsername() && username == "")) {
+            isPlayerOccupied = false;
+        }
         if (button == 1) {
             player1Button->setText(username);
             player1Button->setIcon(QIcon(":/checked.png"));
