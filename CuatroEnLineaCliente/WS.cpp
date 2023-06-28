@@ -129,6 +129,25 @@ void MyWebSocket::onMessageReceived(const QByteArray &message)
         // Emitir señal para mostrar mensaje en NavbarU
         emit invalidCredentials();
     }
+    else if (action == c_table) {
+        // Lee el número de mesa
+        int mesaNumero;
+        dataStream >> mesaNumero;
+
+        // Lee el valor del botón
+        int button;
+        dataStream >> button;
+
+        // Lee el username
+        char usernameChars[16];
+        dataStream.readRawData(usernameChars, 15);
+        usernameChars[15] = '\0';
+        QString username = QString::fromUtf8(usernameChars).trimmed();
+
+        // Emitir la señal para actualizar la mesa
+        emit updateMesa(mesaNumero, button, username);
+    }
+
 }
 
 void MyWebSocket::onError(QAbstractSocket::SocketError error)

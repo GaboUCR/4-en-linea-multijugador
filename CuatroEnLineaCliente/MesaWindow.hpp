@@ -18,6 +18,7 @@ public:
 private slots:
     void onButtonClicked1();
     void onButtonClicked2();
+    void onUpdateMesa(int mesaNumber, int button, const QString &username);
 
 private:
     QLabel *mesaLabel;

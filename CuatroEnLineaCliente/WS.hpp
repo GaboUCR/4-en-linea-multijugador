@@ -12,6 +12,7 @@
 // comunicación servidor-cliente
 enum {
     credencial = 0,
+    c_table = 5,
     c_board = 1,
     c_account = 2,
     c_logged = 3,
@@ -86,6 +87,8 @@ signals:
     void accountInfoReceived(const QString &username, int wins, int loss);
     void invalidCredentials();
     void userAuthenticated();
+    void updateMesa(int mesaNumber, int button, const QString &username);
+
 
 public slots:
     /**

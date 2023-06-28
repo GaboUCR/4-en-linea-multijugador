@@ -18,6 +18,7 @@ MesaWindow::MesaWindow(MyWebSocket* m_socket, int mesaNumber, QWidget *parent) :
     // Connect buttons to slots
     connect(player1Button, &QPushButton::clicked, this, &MesaWindow::onButtonClicked1);
     connect(player2Button, &QPushButton::clicked, this, &MesaWindow::onButtonClicked2);
+    connect(m_socket, &MyWebSocket::updateMesa, this, &MesaWindow::onUpdateMesa);
 
     // Add buttons to layout
     layout->addWidget(player1Button);
@@ -30,7 +31,7 @@ void MesaWindow::onButtonClicked1()
     if (button) {
 
         button->setText(""); // puedes establecer el nombre del jugador dinámicamente
-        button->setIcon(QIcon(":/path/to/checked-checkbox.png")); // establece el icono de casilla marcada
+        button->setIcon(QIcon(":/unchecked.png")); // establece el icono de casilla marcada
 
         QByteArray message;
         QDataStream stream(&message, QIODevice::WriteOnly);
@@ -63,7 +64,7 @@ void MesaWindow::onButtonClicked2()
     if (button) {
 
         button->setText(""); // puedes establecer el nombre del jugador dinámicamente
-        button->setIcon(QIcon(":/path/to/checked-checkbox.png")); // establece el icono de casilla marcada
+        button->setIcon(QIcon(":/unchecked.png")); // establece el icono de casilla marcada
 
         QByteArray message;
         QDataStream stream(&message, QIODevice::WriteOnly);
@@ -89,3 +90,24 @@ void MesaWindow::onButtonClicked2()
         m_socket->sendBinaryMessage(message);
     }
 }
+
+void MesaWindow::onUpdateMesa(int mesaNumber, int button, const QString &username) {
+    if (mesaNumber == this->mesaNumber) {
+        if (button == 1) {
+            player1Button->setText(username);
+            player1Button->setIcon(QIcon(":/checked.png"));
+
+            if (username == "") {
+                player1Button->setIcon(QIcon(":/unchecked.png"));
+            }
+        } else if (button == 2) {
+            player2Button->setText(username);
+            player2Button->setIcon(QIcon(":/checked.png"));
+
+            if (username == "") {
+                player2Button->setIcon(QIcon(":/unchecked.png"));
+            }
+        }
+    }
+}
+
