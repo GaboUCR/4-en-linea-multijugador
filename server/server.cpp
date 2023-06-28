@@ -206,12 +206,18 @@ void do_session(int session_id, std::unordered_map<int, std::shared_ptr<channel>
                 // Leer el ID de la sesión que es un entero de 4 bytes después del nombre del usuario.
                 int sessionId = fromLittleEndian(*(int*)(bytes.data() + 4 + 15));
 
+                // Leer el ID de la sesión que es un entero de 4 bytes después del nombre del usuario.
+                int button = fromLittleEndian(*(int*)(bytes.data()+ 4 + 4 + 15));
+
                 // Leer el numero de mesa 
-                int mesaNumero = fromLittleEndian(*(int*)(bytes.data() + 4 + 15 + 4));
+                int mesaNumero = fromLittleEndian(*(int*)(bytes.data()+ 4 + 4 + 15 + 4));
                 // Imprimir el mensaje en el servidor
                 std::cout << "table" << mesaNumero  <<std::endl;
+                std::cout << "button " << button  <<std::endl;
                 std::cout << "Username: " << username << std::endl;
                 std::cout << "Session ID: " << sessionId << std::endl;
+
+                // aqui vamos a implementar gpt
             }
 
 

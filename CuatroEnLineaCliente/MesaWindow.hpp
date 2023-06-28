@@ -16,7 +16,8 @@ public:
     explicit MesaWindow(MyWebSocket* m_socket, int mesaNumber, QWidget *parent = nullptr);
 
 private slots:
-    void onButtonClicked();
+    void onButtonClicked1();
+    void onButtonClicked2();
 
 private:
     QLabel *mesaLabel;
