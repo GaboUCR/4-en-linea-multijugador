@@ -55,7 +55,7 @@ void MyWebSocket::onConnected()
     connect(m_webSocket, &QWebSocket::disconnected, this, &MyWebSocket::onDisconnected);
     connect(m_webSocket, QOverload<QAbstractSocket::SocketError>::of(&QWebSocket::errorOccurred), this, &MyWebSocket::onError);
     // Start the heartbeat timer to fire every 400ms
-    m_heartbeatTimer->start(400);
+//    m_heartbeatTimer->start(900);
 }
 
 void MyWebSocket::sendBinaryMessage(const QByteArray &message)

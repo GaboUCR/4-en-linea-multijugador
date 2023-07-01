@@ -234,15 +234,14 @@ void do_session(int session_id, std::unordered_map<int, std::shared_ptr<channel>
     {
         auto& ws = *(sessions[session_id]->session);
 
-        auto dbManager  = new DatabaseManager("p.db");
+        DatabaseManager dbManager("p.db");
+
 
         for (;;)
         {
             boost::beast::flat_buffer buffer;
 
-            std::unique_lock<std::shared_mutex> lock(sessions[session_id]->mutex);
             ws.read(buffer);
-            lock.unlock();
 
             std::vector<uint8_t> bytes(buffers_begin(buffer.data()), buffers_end(buffer.data()));
 
@@ -281,10 +280,10 @@ void do_session(int session_id, std::unordered_map<int, std::shared_ptr<channel>
                 password.erase(std::find_if(password.rbegin(), password.rend(), [](unsigned char ch) { return !std::isspace(ch); }).base(), password.end());
 
                 std::vector<uint8_t> response;
-                if (dbManager->registerPlayer(username, password))
+                if (dbManager.registerPlayer(username, password))
                 {
                     // Obtenemos las victorias y derrotas del usuario
-                    auto [wins, losses] = dbManager->getPlayerWinLossRecord(username);
+                    auto [wins, losses] = dbManager.getPlayerWinLossRecord(username);
                     // Rellenar el nombre de usuario con espacios hasta llegar a 15 caracteres
                     username.resize(15, ' ');
                     
@@ -313,11 +312,11 @@ void do_session(int session_id, std::unordered_map<int, std::shared_ptr<channel>
                 password.erase(std::find_if(password.rbegin(), password.rend(), [](unsigned char ch) { return !std::isspace(ch); }).base(), password.end());
 
                 std::vector<uint8_t> response;
-                if (dbManager->authenticatePlayer(username, password))
+                if (dbManager.authenticatePlayer(username, password))
                 {
 
                     // Obtenemos las victorias y derrotas del usuario
-                    auto [wins, losses] = dbManager->getPlayerWinLossRecord(username);
+                    auto [wins, losses] = dbManager.getPlayerWinLossRecord(username);
 
                     // Rellenar el nombre de usuario con espacios hasta llegar a 15 caracteres
                     username.resize(15, ' ');
@@ -408,7 +407,7 @@ void do_session(int session_id, std::unordered_map<int, std::shared_ptr<channel>
             }
 
             buffer.consume(buffer.size());
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            // std::this_thread::sleep_for(std::chrono::milliseconds(100));
         }
     }
     catch (boost::beast::system_error const& se)
@@ -534,6 +533,7 @@ int main()
             std::copy(username1.begin(), username1.end(), std::back_inserter(message));
 
             // Enviar mensaje al cliente
+            std::unique_lock<std::shared_mutex> lock_s(sessions[session_id]->mutex);
             boost::beast::flat_buffer buffer;
             buffer.commit(boost::asio::buffer_copy(buffer.prepare(message.size()), boost::asio::buffer(message)));
             sessions[session_id]->session->binary(true);
@@ -562,6 +562,7 @@ int main()
             std::copy(username2.begin(), username2.end(), std::back_inserter(message));
 
             // Enviar mensaje al cliente
+            std::unique_lock<std::shared_mutex> lock_s(sessions[session_id]->mutex);
             boost::beast::flat_buffer buffer;
             buffer.commit(boost::asio::buffer_copy(buffer.prepare(message.size()), boost::asio::buffer(message)));
             sessions[session_id]->session->binary(true);
