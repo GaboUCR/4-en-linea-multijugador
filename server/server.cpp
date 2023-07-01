@@ -366,44 +366,46 @@ void do_session(int session_id, std::unordered_map<int, std::shared_ptr<channel>
                 int tablev = fromLittleEndian(*(int*)(bytes.data() + 8));
                 int sessionId = fromLittleEndian(*(int*)(bytes.data() + 12));
 
-
-
                 // Mostrar los valores
                 std::cout << "color: " << colorv << std::endl;
                 std::cout << "table: " << tablev << std::endl;
                 std::cout << "sessionId: " << sessionId << std::endl;
                 
 
-                // int winner_session_id = sessionId;
-                // int loser_session_id;
-                // {
-                //     std::unique_lock<std::shared_mutex> game_lock(games[tablev]->mutex);
+                int winner_session_id = sessionId;
+                int loser_session_id;
+                {
+                    std::unique_lock<std::shared_mutex> game_lock(games[tablev]->mutex);
 
-                //     if (colorv == 0) {
-                //         loser_session_id = std::get<1>(games[tablev]->jugadores);
-                //     } else {
-                //         loser_session_id = std::get<0>(games[tablev]->jugadores);
-                //     }
-                // }
+                    if (colorv == 0) {
+                        loser_session_id = std::get<1>(games[tablev]->jugadores);
+                    } else {
+                        loser_session_id = std::get<0>(games[tablev]->jugadores);
+                    }
+                }
 
-                // handle_win(winner_session_id, loser_session_id, tablev, sessions);
-                //     // Restablecer la entrada en 'games'
-                //     {   
-                //         std::unique_lock<std::shared_mutex> game_lock(games[tablev]->mutex);
-                //         games[tablev]->jugadores = std::make_tuple(-1, -1);
-                //         games[tablev]->tablero.clear(); // Limpiar la lista
-                //         games[tablev]->turno = -1;
-                //     }
-                //     // Restablecer la entrada en 'tables'
-                //     {    
-                //         std::unique_lock<std::shared_mutex> game_lock(tables[tablev]->mutex);
-                //         tables[tablev]->jugador_1 = "";
-                //         tables[tablev]->jugador_2 = "";
-                //         tables[tablev]->id_1 = -1;
-                //         tables[tablev]->id_2 = -1;
-                //     }
+                handle_win(winner_session_id, loser_session_id, tablev, sessions);
+                    // Restablecer la entrada en 'games'
+                    {   
+                        std::unique_lock<std::shared_mutex> game_lock(games[tablev]->mutex);
+                        games[tablev]->jugadores = std::make_tuple(-1, -1);
+                        games[tablev]->tablero.clear(); // Limpiar la lista
+                        games[tablev]->turno = -1;
+                    }
+                    // Restablecer la entrada en 'tables'
+                    
+                    std::unique_lock<std::shared_mutex> game_lock(games[tablev]->mutex);
+                    std::string jugador_1 = tables[tablev]->jugador_1;
+                    int id_1 = tables[tablev]->id_1;
+
+                    std::string jugador_2 = tables[tablev]->jugador_2;
+                    int id_2 = tables[tablev]->id_2;
+                    game_lock.unlock();
+                    
+
+                    handleTableAction(jugador_1, 1, tablev, id_1, sessions, tables, games);
+                    handleTableAction(jugador_2, 2, tablev, id_2, sessions, tables, games);                   
             }
-
 
             buffer.consume(buffer.size());
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
