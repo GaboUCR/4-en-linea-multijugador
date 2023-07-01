@@ -35,14 +35,7 @@ public:
      * @param parent Puntero al widget padre. Es nulo por defecto.
      */
     Board(int table_id, MyWebSocket* socket, QWidget *parent = nullptr);
-
-    /**
-     * @brief Cambia el color de un botón en el tablero.
-     * @param row Fila del botón.
-     * @param col Columna del botón.
-     * @param color Color del botón (enum ButtonColor).
-     */
-    void changeButtonColor(int row, int col, int color);
+    ~Board();
 
     /**
      * @brief Establece el WebSocket para comunicaciones en tiempo real.
@@ -65,6 +58,13 @@ private slots:
      * @brief Manejador para cuando se presiona un botón.
      */
     void handleButtonClicked();
+    /**
+     * @brief Cambia el color de un botón en el tablero.
+     * @param row Fila del botón.
+     * @param col Columna del botón.
+     * @param color Color del botón (enum ButtonColor).
+     */
+    void changeButtonColor(int row, int col, int color, int id);
 
 protected:
     /**
@@ -78,8 +78,11 @@ private:
     QPushButton *buttons[7][7]; /**< Matriz de botones del tablero. */
     MyWebSocket* m_socket;      /**< Puntero al objeto WebSocket para comunicación en tiempo real. */
     int boardState[7][7];       /**< Estado del tablero de juego. */
+    int boardColor[7][7];
     int player_id;              /**< Identificador del jugador. */
     int table;                  /**< Identificador de la mesa de juego. */
+    bool hasWon(int color, int lastMoveRow, int lastMoveCol);
+
 };
 
 #endif

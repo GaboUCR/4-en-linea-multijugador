@@ -15,6 +15,9 @@ Game::Game(MyWebSocket* m_socket, QWidget *parent)
     // Conectar la señal de autenticación del usuario a la ranura onUserAuthenticated
     connect(m_socket, &MyWebSocket::userAuthenticated, this, &Game::onUserAuthenticated);
     connect(m_socket, &MyWebSocket::gameStarted, this, &Game::onGameStarted);
+    // En el constructor de tu clase Game
+    connect(m_socket, &MyWebSocket::gameFinished, this, &Game::returnToLobby);
+
 
     // Asignar el layout principal a este widget
     setLayout(m_mainLayout);
@@ -45,4 +48,19 @@ void Game::onGameStarted(const QString& player1, const QString& player2, int tab
 
     // Añadir GameWindow al layout principal
     m_mainLayout->addWidget(gameWindow);
+}
+
+void Game::returnToLobby()
+{
+    // Destruir y cerrar el tablero
+    // Remover el widget actual del layout principal
+    if (m_mainLayout->count() > 0) {
+        QWidget* currentWidget = m_mainLayout->itemAt(0)->widget();
+        m_mainLayout->removeWidget(currentWidget);
+        currentWidget->deleteLater();
+    }
+
+    // Añadir NavBar al layout (asumiendo que representa el lobby)
+    m_mainLayout->addWidget(m_navBar);
+    m_navBar->show();
 }

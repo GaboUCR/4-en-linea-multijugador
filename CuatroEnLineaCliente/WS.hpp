@@ -17,17 +17,22 @@ enum {
     c_account = 2,
     c_logged = 3,
     c_not_logged = 4,
-    c_begin_game = 6
+    c_begin_game = 6,
+    c_game_won = 7,
+    c_game_lost = 8
 };
-
 // comunicación cliente-servidor
 enum {
     board = 0,
     table = 1,
     nulo = 2,
     login = 3,
-    signin = 4
+    signin = 4,
+    gameWon = 5,
+    gameLost = 6
 };
+
+
 
 /**
  * @class MyWebSocket
@@ -77,7 +82,7 @@ signals:
      * @param y Coordenada y de la casilla.
      * @param color El nuevo color de la casilla.
      */
-    void boardColorChanged(int x, int y, int color);
+    void boardColorChanged(int x, int y, int color, int id);
 
     /**
      * @brief Señal emitida para cambiar el turno.
@@ -90,6 +95,8 @@ signals:
     void userAuthenticated();
     void updateMesa(int mesaNumber, int button, const QString &username);
     void gameStarted(const QString& player1, const QString& player2, int tableNumber);
+    void gameFinished();
+
 
 public slots:
     /**

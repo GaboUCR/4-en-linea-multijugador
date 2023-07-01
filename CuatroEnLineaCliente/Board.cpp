@@ -55,7 +55,7 @@ Board::Board(int table_id, MyWebSocket* socket, QWidget *parent)
     : QWidget(parent), table(table_id), m_socket(socket)
 {
 
-    connect(socket, &MyWebSocket::boardColorChanged, this, &Board::changeButtonColor);
+    connect(socket, &MyWebSocket::boardColorChanged, this, &Board::changeButtonColor, Qt::DirectConnection);
 
     // Crear un layout en grilla
     gridLayout = new QGridLayout;
@@ -92,6 +92,7 @@ Board::Board(int table_id, MyWebSocket* socket, QWidget *parent)
 
             // Inicializa el estado del tablero a 0 (sin piezas)
             boardState[row][col] = 0;
+            boardColor[row][col] = -1;
             buttons[row][col] = button;
             // Añadir el botón al layout en la posición correspondiente
             gridLayout->addWidget(button, row, col);
@@ -102,7 +103,20 @@ Board::Board(int table_id, MyWebSocket* socket, QWidget *parent)
     setLayout(gridLayout);
 }
 
-void Board::changeButtonColor(int row, int col, int color)
+Board::~Board()
+{
+    // Liberar la memoria de los botones
+    for (int row = 0; row < 7; ++row) {
+        for (int col = 0; col < 7; ++col) {
+            delete buttons[row][col];
+        }
+    }
+
+    // Liberar la memoria del layout
+    delete gridLayout;
+}
+
+void Board::changeButtonColor(int row, int col, int color, int id)
 {
     if (row < 0 || row >= 7 || col < 0 || col >= 7) {
         // Índices fuera de rango
@@ -111,6 +125,7 @@ void Board::changeButtonColor(int row, int col, int color)
 
     QPushButton *button = buttons[row][col];
     boardState[row][col] = 1;
+    boardColor[row][col] = color;
 
     QString baseStyle =
         "QPushButton {"
@@ -131,7 +146,74 @@ void Board::changeButtonColor(int row, int col, int color)
     } else if (color == YELLOW) {
         button->setStyleSheet(baseStyle.arg("yellow"));
     }
+//    qDebug() << "HasWon: " << hasWon(color, row, col);
+//    qDebug() << "ID: " << id;
+//    qDebug() << "Session ID: " << m_socket->getSessionId();
+
+
+    // Ahora primero cambiamos el color y luego verificamos si el jugador ha ganado
+    if (hasWon(color, row, col) && id == m_socket->getSessionId()) {
+        // Construir el mensaje para indicar que el jugador ha ganado
+        QByteArray message;
+        QDataStream stream(&message, QIODevice::WriteOnly);
+        stream.setVersion(QDataStream::Qt_5_15);
+        stream.setByteOrder(QDataStream::LittleEndian);
+
+        // Añadir la acción GameWon, el color del jugador, el número de la mesa y el ID de la sesión
+        stream << (int)gameWon;
+        stream << color;
+        stream << table;
+        stream << m_socket->getSessionId();
+
+        qDebug() << "Mensaje enviado (hex):" << message.toHex();
+
+        // Enviar el mensaje
+        m_socket->sendBinaryMessage(message);
+    }
 }
+
+
+bool Board::hasWon(int color, int lastMoveRow, int lastMoveCol)
+{
+    // Direcciones: horizontal, vertical, diagonal principal, diagonal secundaria
+    const int directions[4][2] = {{1, 0}, {0, 1}, {1, 1}, {1, -1}};
+
+    // Iterar por cada dirección
+    for (int dir = 0; dir < 4; ++dir) {
+        int dx = directions[dir][0];
+        int dy = directions[dir][1];
+
+        // Contar cuántas fichas consecutivas del mismo color hay en esta dirección
+        int count = 1;  // La ficha recién colocada
+        for (int step = 1; step < 4; ++step) {
+            int x = lastMoveCol + step * dx;
+            int y = lastMoveRow + step * dy;
+            if (x < 0 || x >= 7 || y < 0 || y >= 7 || boardColor[y][x] != color) {
+                break;  // Fuera de los límites o no coincide con el color
+            }
+            count++;
+        }
+
+        // Contar en la dirección opuesta
+        for (int step = 1; step < 4; ++step) {
+            int x = lastMoveCol - step * dx;
+            int y = lastMoveRow - step * dy;
+            if (x < 0 || x >= 7 || y < 0 || y >= 7 || boardColor[y][x] != color) {
+                break;  // Fuera de los límites o no coincide con el color
+            }
+            count++;
+        }
+
+        // Si hay al menos 4 fichas consecutivas, el jugador ha ganado
+        if (count >= 4) {
+            return true;
+        }
+    }
+
+    // Si llegamos aquí, no hay 4 fichas consecutivas en ninguna dirección
+    return false;
+}
+
 
 void Board::resizeEvent(QResizeEvent *event)
 {   //@todo Ajustar diseño responsive

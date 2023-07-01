@@ -50,10 +50,10 @@ int MyWebSocket::getSessionId(){
 void MyWebSocket::onConnected()
 {
 
-    connect(m_webSocket, &QWebSocket::binaryMessageReceived, this, &MyWebSocket::onMessageReceived);
+    connect(m_webSocket, &QWebSocket::binaryMessageReceived, this, &MyWebSocket::onMessageReceived, Qt::DirectConnection);
     connect(m_webSocket, &QWebSocket::errorOccurred, this, &MyWebSocket::onError);
     connect(m_webSocket, &QWebSocket::disconnected, this, &MyWebSocket::onDisconnected);
-    connect(m_webSocket, QOverload<QAbstractSocket::SocketError>::of(&QWebSocket::error), this, &MyWebSocket::onError);
+    connect(m_webSocket, QOverload<QAbstractSocket::SocketError>::of(&QWebSocket::errorOccurred), this, &MyWebSocket::onError);
     // Start the heartbeat timer to fire every 400ms
     m_heartbeatTimer->start(400);
 }
@@ -94,11 +94,11 @@ void MyWebSocket::onMessageReceived(const QByteArray &message)
     }
     else if(action == c_board)
     {
-        int x, y, color;
+        int x, y, color, id;
         // Lee x, y, y color como little endian
-        dataStream >> x >> y >> color;
-
-        emit boardColorChanged(x, y, color);
+        dataStream >> x >> y >> color >> id;
+        locker.unlock();
+        emit boardColorChanged(x, y, color, id);
         emit changeTurn(color);
     }
     else if (action == c_logged || action == c_account)
@@ -167,6 +167,9 @@ void MyWebSocket::onMessageReceived(const QByteArray &message)
 
         // Emitir la señal de que el juego ha comenzado
         emit gameStarted(player1, player2, tableNumber);
+    }
+    else if (action ==  c_game_won || action == c_game_lost) {
+        emit gameFinished();
     }
 
 }

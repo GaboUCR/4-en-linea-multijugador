@@ -155,7 +155,7 @@ void fail(boost::system::error_code ec, char const* what)
 }
 
 void change_board(int table_id, int player_id, int x, int y, std::unordered_map<int, std::shared_ptr<channel>>& sessions, std::unordered_map<int, GameTab*>& games) {
-    std::shared_lock<std::shared_mutex> game_lock(games[table_id]->mutex);
+    std::unique_lock<std::shared_mutex> game_lock(games[table_id]->mutex);
 
     // Comprobar si es el turno del jugador
     int current_turn = std::get<0>(games[table_id]->jugadores) == player_id ? 0 : 1;
@@ -179,18 +179,53 @@ void change_board(int table_id, int player_id, int x, int y, std::unordered_map<
     games[table_id]->turno = (games[table_id]->turno + 1) % 2;
 
     // Crear el mensaje
-    std::vector<uint8_t> message(16, 0);
+    std::vector<uint8_t> message(20, 0);
     *(int*)(message.data()) = toLittleEndian(c_board);
     *(int*)(message.data() + 4) = toLittleEndian(x);
     *(int*)(message.data() + 8) = toLittleEndian(y);
     *(int*)(message.data() + 12) = toLittleEndian(current_turn);
-
+    *(int*)(message.data() + 16) = toLittleEndian(player_id);
 
     // Enviar el mensaje a ambos jugadores
     int player1_id = std::get<0>(games[table_id]->jugadores);
     int player2_id = std::get<1>(games[table_id]->jugadores);
     write_to_channel(*sessions[player1_id], message);
     write_to_channel(*sessions[player2_id], message);
+}
+ 
+void handle_win(int winner_session_id, int loser_session_id, int table_id ,std::unordered_map<int, std::shared_ptr<channel>>& sessions) {
+
+    std::vector<uint8_t> win_message(4, 0);
+    std::vector<uint8_t> lose_message(4, 0);
+
+    // Pack the win and lose action codes
+    *(int*)win_message.data() = toLittleEndian(c_game_won); // assuming c_game_won is an integer constant
+    *(int*)lose_message.data() = toLittleEndian(c_game_lost); // assuming c_game_lost is an integer constant
+
+    // Send win message to winner
+    {
+        std::unique_lock<std::shared_mutex> lock(sessions[winner_session_id]->mutex);
+        boost::beast::flat_buffer buffer;
+        buffer.commit(boost::asio::buffer_copy(buffer.prepare(win_message.size()), boost::asio::buffer(win_message)));
+        sessions[winner_session_id]->session->binary(true);
+        sessions[winner_session_id]->session->write(buffer.data());
+    }
+
+    // Send lose message to loser
+    {
+        std::unique_lock<std::shared_mutex> lock(sessions[loser_session_id]->mutex);
+        boost::beast::flat_buffer buffer;
+        buffer.commit(boost::asio::buffer_copy(buffer.prepare(lose_message.size()), boost::asio::buffer(lose_message)));
+        sessions[loser_session_id]->session->binary(true);
+        sessions[loser_session_id]->session->write(buffer.data());
+    }
+}
+
+void printByteArray(const std::vector<unsigned char>& byteArray) {
+    for (unsigned char byte : byteArray) {
+        std::cout << std::hex << static_cast<int>(byte) << " ";
+    }
+    std::cout << std::dec << std::endl;  // Restaurar la base de impresión a decimal
 }
 
 void do_session(int session_id, std::unordered_map<int, std::shared_ptr<channel>>& sessions, std::unordered_map<int, GameTab*>& games, std::unordered_map<int, TableTab*>& tables)
@@ -211,7 +246,9 @@ void do_session(int session_id, std::unordered_map<int, std::shared_ptr<channel>
 
             std::vector<uint8_t> bytes(buffers_begin(buffer.data()), buffers_end(buffer.data()));
 
-            int action = fromLittleEndian(*(int*)(bytes.data()));
+            printByteArray(bytes);
+
+            int action = boost::endian::little_to_native(*(reinterpret_cast<int*>(bytes.data())));
 
             // If action is board type
             if (action == board) {
@@ -322,6 +359,49 @@ void do_session(int session_id, std::unordered_map<int, std::shared_ptr<channel>
 
                 handleTableAction(username, button, mesaNumero, sessionId, sessions, tables, games);
 
+            }
+            else if (action == gameWon) {
+                // Leer los valores en el orden en que fueron enviados
+                int colorv = fromLittleEndian(*(int*)(bytes.data() + 4));
+                int tablev = fromLittleEndian(*(int*)(bytes.data() + 8));
+                int sessionId = fromLittleEndian(*(int*)(bytes.data() + 12));
+
+
+
+                // Mostrar los valores
+                std::cout << "color: " << colorv << std::endl;
+                std::cout << "table: " << tablev << std::endl;
+                std::cout << "sessionId: " << sessionId << std::endl;
+                
+
+                // int winner_session_id = sessionId;
+                // int loser_session_id;
+                // {
+                //     std::unique_lock<std::shared_mutex> game_lock(games[tablev]->mutex);
+
+                //     if (colorv == 0) {
+                //         loser_session_id = std::get<1>(games[tablev]->jugadores);
+                //     } else {
+                //         loser_session_id = std::get<0>(games[tablev]->jugadores);
+                //     }
+                // }
+
+                // handle_win(winner_session_id, loser_session_id, tablev, sessions);
+                //     // Restablecer la entrada en 'games'
+                //     {   
+                //         std::unique_lock<std::shared_mutex> game_lock(games[tablev]->mutex);
+                //         games[tablev]->jugadores = std::make_tuple(-1, -1);
+                //         games[tablev]->tablero.clear(); // Limpiar la lista
+                //         games[tablev]->turno = -1;
+                //     }
+                //     // Restablecer la entrada en 'tables'
+                //     {    
+                //         std::unique_lock<std::shared_mutex> game_lock(tables[tablev]->mutex);
+                //         tables[tablev]->jugador_1 = "";
+                //         tables[tablev]->jugador_2 = "";
+                //         tables[tablev]->id_1 = -1;
+                //         tables[tablev]->id_2 = -1;
+                //     }
             }
 
 
@@ -486,8 +566,6 @@ int main()
             sessions[session_id]->session->write(buffer.data());
         }
     }
-
-
 
         // Launch a new session for this connection
         std::thread(&do_session, session_id, std::ref(sessions), std::ref(games), std::ref(tables)).detach();

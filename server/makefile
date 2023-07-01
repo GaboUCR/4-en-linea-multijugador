@@ -1,6 +1,6 @@
 CC = g++
 
-SRCS = server.cpp channel.cpp DatabaseManager.cpp -lsqlite3
+SRCS = server.cpp channel.cpp DatabaseManager.cpp -O3 -lsqlite3
 EXEC = programa
 
 .PHONY: all clean
@@ -8,7 +8,7 @@ EXEC = programa
 all: run
 
 compile: $(OBJS)
-	$(CC) $(SRCS) $(OBJS) -o $(EXEC) 
+	$(CC) $(SRCS) $(OBJS) -o $(EXEC)
 
 run: compile
 	./$(EXEC)
