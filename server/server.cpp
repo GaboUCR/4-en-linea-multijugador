@@ -15,6 +15,7 @@
 #include "DatabaseManager.hpp"
 #include <climits>
 #include <algorithm>
+#include <random>
 
 using tcp = boost::asio::ip::tcp;       
 namespace websocket = boost::beast::websocket;
@@ -33,7 +34,7 @@ uint32_t toLittleEndian(uint32_t value) {
     }
 }
 
-void handleTableAction(std::string username, int button, int mesaNumero, int sessionId, std::unordered_map<int, std::shared_ptr<channel>>& sessions, std::unordered_map<int, TableTab*>& tables, std::unordered_map<int, GameTab*>& games) {
+void handleTableAction(std::string username, int button, int mesaNumero, int sessionId, std::unordered_map<int, std::shared_ptr<channel>>& sessions, std::unordered_map<int, TableTab*>& tables, std::unordered_map<int, GameTab*>& games, clickedTable* clicked) {
     // Actualizar los valores de la mesa
     bool escribir = false;
     {
@@ -44,11 +45,17 @@ void handleTableAction(std::string username, int button, int mesaNumero, int ses
 
                 tables[mesaNumero]->jugador_1 = username;
                 tables[mesaNumero]->id_1 = sessionId;
+                clicked->clicked = mesaNumero;
+                clicked->button = 1;
                 escribir = true;
             } 
             else if (sessionId == tables[mesaNumero]->id_1) {
                 tables[mesaNumero]->jugador_1 = "";
                 tables[mesaNumero]->id_1 = -1;
+
+                clicked->clicked = -1;
+                clicked->button = -1;
+
                 username = "";
                 escribir = true;
             }
@@ -59,12 +66,20 @@ void handleTableAction(std::string username, int button, int mesaNumero, int ses
 
                 tables[mesaNumero]->jugador_2 = username;
                 tables[mesaNumero]->id_2 = sessionId;
+
+                clicked->clicked = mesaNumero;
+                clicked->button = 2;   
+
                 escribir = true;
             } 
             else if (sessionId == tables[mesaNumero]->id_2) {
 
                 tables[mesaNumero]->jugador_2 = "";
                 tables[mesaNumero]->id_2 = -1;
+
+                clicked->clicked = -1;
+                clicked->button = -1;
+
                 username="";
                 escribir = true;
             }
@@ -268,6 +283,11 @@ void sendPlayerScores(int session_id, DatabaseManager& dbManager, std::unordered
 
 void do_session(int session_id, std::unordered_map<int, std::shared_ptr<channel>>& sessions, std::unordered_map<int, GameTab*>& games, std::unordered_map<int, TableTab*>& tables)
 {
+
+    clickedTable clicked_table;
+    clicked_table.clicked = -1;
+    clicked_table.button = -1;
+
     try
     {
         auto& ws = *(sessions[session_id]->session);
@@ -395,7 +415,7 @@ void do_session(int session_id, std::unordered_map<int, std::shared_ptr<channel>
                 std::cout << "Username: " << username << std::endl;
                 std::cout << "Session ID: " << sessionId << std::endl;
 
-                handleTableAction(username, button, mesaNumero, sessionId, sessions, tables, games);
+                handleTableAction(username, button, mesaNumero, sessionId, sessions, tables, games, &clicked_table);
 
             }
             else if (action == gameWon) {
@@ -445,7 +465,7 @@ void do_session(int session_id, std::unordered_map<int, std::shared_ptr<channel>
                 username.resize(15, ' ');
 
                 response.resize(4 + 15 + 4 + 4);
-                *(int*)response.data() = toLittleEndian(c_logged);
+                *(int*)response.data() = toLittleEndian(c_account);
                 *(int*)(response.data() + 4 + 15) = toLittleEndian(wins);
                 *(int*)(response.data() + 4 + 15 + 4) = toLittleEndian(losses);
                 std::copy(username.begin(), username.end(), response.begin() + 4);
@@ -454,7 +474,6 @@ void do_session(int session_id, std::unordered_map<int, std::shared_ptr<channel>
                 // Obtenemos las victorias y derrotas del usuario 2
                 auto [wins_2, losses_2] = dbManager.getPlayerWinLossRecord(jugador_2);
 
-
                 response.clear();
                 username = jugador_2;
 
@@ -462,7 +481,7 @@ void do_session(int session_id, std::unordered_map<int, std::shared_ptr<channel>
                 username.resize(15, ' ');
 
                 response.resize(4 + 15 + 4 + 4);
-                *(int*)response.data() = toLittleEndian(c_logged);
+                *(int*)response.data() = toLittleEndian(c_account);
                 *(int*)(response.data() + 4 + 15) = toLittleEndian(wins_2);
                 *(int*)(response.data() + 4 + 15 + 4) = toLittleEndian(losses_2);
                 std::copy(username.begin(), username.end(), response.begin() + 4);
@@ -478,8 +497,8 @@ void do_session(int session_id, std::unordered_map<int, std::shared_ptr<channel>
                     }
                     // Restablecer la entrada en 'tables'
                     
-                    handleTableAction(jugador_1, 1, tablev, id_1, sessions, tables, games);
-                    handleTableAction(jugador_2, 2, tablev, id_2, sessions, tables, games);                   
+                    handleTableAction(jugador_1, 1, tablev, id_1, sessions, tables, games, &clicked_table);
+                    handleTableAction(jugador_2, 2, tablev, id_2, sessions, tables, games, &clicked_table);                   
             }
             else if (action == gamesPlayed)
             {
@@ -496,6 +515,74 @@ void do_session(int session_id, std::unordered_map<int, std::shared_ptr<channel>
             std::cerr << "Error: " << se.code().message() << "\n";
         else
             std::cerr << "WebSocket closed normally.\n";
+        
+        // Se elimina la sesión
+        {
+            std::lock_guard<std::mutex> lock(sessions_mutex);
+            sessions.erase(session_id);
+        }
+
+        if (clicked_table.clicked != -1) {
+            std::unique_lock<std::shared_mutex> lock(tables[clicked_table.clicked]->mutex);
+
+            if (clicked_table.button == 1) {
+
+                tables[clicked_table.clicked]->jugador_1 = "";
+                tables[clicked_table.clicked]->id_1 = -1;
+            }
+            else {
+
+                tables[clicked_table.clicked]->jugador_2 = "";
+                tables[clicked_table.clicked]->id_2 = -1;
+
+            }
+            // Crear el mensaje para enviar a los clientes
+            std::string username = "               ";
+            std::vector<uint8_t> response(4 + 4 + 4 + 15);
+            *(int*)response.data() = toLittleEndian(c_table); // los primeros 4 bytes son el enum c_table
+            *(int*)(response.data() + 4) = toLittleEndian(clicked_table.clicked); // los siguientes 4 bytes son el número de mesa
+            *(int*)(response.data() + 8) = toLittleEndian(clicked_table.button); // los siguientes 4 bytes son el número del botón
+            std::copy(username.begin(), username.end(), response.begin() + 12); // los siguientes 15 bytes son el nombre de usuario
+            
+            {    
+                std::lock_guard<std::mutex> lock(sessions_mutex);
+                // Enviar el mensaje a todos los clientes conectados
+                for (auto& [session_id, session] : sessions) {
+                    write_to_channel(*session, response);
+                }
+            }
+
+            {
+                std::unique_lock<std::shared_mutex> lock(games[clicked_table.clicked]->mutex);
+
+                // se deben liberar la partida si el jugador estaba jugando.
+                if (games[clicked_table.clicked]->turno != -1) {
+                    
+                    int winner_id;
+
+                    if( std::get<0>(games[clicked_table.clicked]->jugadores) == session_id)  {
+                        
+                        winner_id = std::get<1>(games[clicked_table.clicked]->jugadores);
+                    }
+                    else {
+                        winner_id = std::get<0>(games[clicked_table.clicked]->jugadores);
+                    }
+
+                    std::vector<uint8_t> response_1(4);
+                    *(int*)response.data() = toLittleEndian(c_game_won); // los primeros 4 bytes son el enum c_table
+
+
+                    write_to_channel(*sessions[winner_id], response);
+                }
+                
+                games[clicked_table.clicked]->jugadores = std::make_tuple(-1, -1);
+                games[clicked_table.clicked]->tablero.clear(); // Limpiar la lista
+                games[clicked_table.clicked]->turno = -1;
+
+
+            }
+            
+        }
     }
     catch (std::exception const& e)
     {

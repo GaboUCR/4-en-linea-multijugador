@@ -75,6 +75,13 @@ struct BoardMsg {
     int y;
 };
 
+struct clickedTable {
+    int clicked;
+    int button;
+
+};
+
+
 /**
  * @brief Función para reportar errores.
  * 
