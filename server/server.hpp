@@ -28,7 +28,8 @@ enum {
     c_not_logged = 4,
     c_begin_game = 6,
     c_game_won = 7,
-    c_game_lost = 8
+    c_game_lost = 8,
+    c_games = 9
 };
 // comunicación cliente-servidor
 enum {
@@ -38,7 +39,8 @@ enum {
     login = 3,
     signin = 4,
     gameWon = 5,
-    gameLost = 6
+    gameLost = 6,
+    gamesPlayed = 7
 };
 
 

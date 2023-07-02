@@ -228,6 +228,44 @@ void printByteArray(const std::vector<unsigned char>& byteArray) {
     std::cout << std::dec << std::endl;  // Restaurar la base de impresión a decimal
 }
 
+void sendPlayerScores(int session_id, DatabaseManager& dbManager, std::unordered_map<int, std::shared_ptr<channel>>& sessions) {
+    // Solicitar todos los registros de victorias y derrotas de la base de datos
+    auto records = dbManager.getAllPlayersWinLossRecord();
+
+    // Construir el mensaje de respuesta
+    std::vector<uint8_t> response;
+    int recordCount = records.size();
+
+    // Reservar espacio en el vector: 4 (acción) + 4 (cantidad de jugadores) + 23 (username + victories + defeats) * cantidad de jugadores
+    response.resize(4 + 4 + 23 * recordCount);
+
+    // Escribir el tipo de acción y la cantidad de registros
+    *(int*)response.data() = toLittleEndian(c_games);
+    *(int*)(response.data() + 4) = toLittleEndian(recordCount);
+
+    // Puntero para escribir cada registro en el mensaje
+    uint8_t* recordPtr = response.data() + 8;
+
+    // Escribir los registros en el mensaje
+    for (const auto& [username, victories, defeats] : records)
+    {
+        // Copiar el username (max 15 bytes, completar con espacios)
+        std::string paddedUsername = username;
+        paddedUsername.resize(15, ' ');
+        std::copy(paddedUsername.begin(), paddedUsername.end(), recordPtr);
+
+        // Copiar las victorias y derrotas
+        *(int*)(recordPtr + 15) = toLittleEndian(victories);
+        *(int*)(recordPtr + 19) = toLittleEndian(defeats);
+
+        // Mover el puntero al siguiente espacio para escribir
+        recordPtr += 23;
+    }
+
+    // Enviar el mensaje construido
+    write_to_channel(*sessions[session_id], response);
+}
+
 void do_session(int session_id, std::unordered_map<int, std::shared_ptr<channel>>& sessions, std::unordered_map<int, GameTab*>& games, std::unordered_map<int, TableTab*>& tables)
 {
     try
@@ -236,6 +274,7 @@ void do_session(int session_id, std::unordered_map<int, std::shared_ptr<channel>
 
         DatabaseManager dbManager("p.db");
 
+        sendPlayerScores(session_id, std::ref(dbManager), sessions);        
 
         for (;;)
         {
@@ -409,9 +448,13 @@ void do_session(int session_id, std::unordered_map<int, std::shared_ptr<channel>
                     handleTableAction(jugador_1, 1, tablev, id_1, sessions, tables, games);
                     handleTableAction(jugador_2, 2, tablev, id_2, sessions, tables, games);                   
             }
-
+            else if (action == gamesPlayed)
+            {
+                sendPlayerScores(session_id, std::ref(dbManager), sessions);
+            }
+            
             buffer.consume(buffer.size());
-            // std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
         }
     }
     catch (boost::beast::system_error const& se)

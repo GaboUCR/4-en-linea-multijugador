@@ -1,6 +1,7 @@
 #include "Game.hpp"
 #include <QVBoxLayout>
 #include "GameWindow.hpp"
+#include "Scores.hpp"
 
 Game::Game(MyWebSocket* m_socket, QWidget *parent)
     : QWidget(parent), m_socket(m_socket)
@@ -17,7 +18,6 @@ Game::Game(MyWebSocket* m_socket, QWidget *parent)
     connect(m_socket, &MyWebSocket::gameStarted, this, &Game::onGameStarted);
     // En el constructor de tu clase Game
     connect(m_socket, &MyWebSocket::gameFinished, this, &Game::returnToLobby);
-
 
     // Asignar el layout principal a este widget
     setLayout(m_mainLayout);

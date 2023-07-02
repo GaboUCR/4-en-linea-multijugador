@@ -171,6 +171,47 @@ void MyWebSocket::onMessageReceived(const QByteArray &message)
     else if (action ==  c_game_won || action == c_game_lost) {
         emit gameFinished();
     }
+    else if (action == c_games) // Asegúrate de que c_games está definido correctamente como enum
+    {
+        // Lee la cantidad de jugadores como little endian
+        int numPlayers;
+        dataStream >> numPlayers;
+
+        // Crea una lista para almacenar la información de cada jugador
+        QList<QVariantMap> playersInfo;
+
+        // Itera a través de cada jugador y lee su información
+        for (int i = 0; i < numPlayers; i++)
+        {
+            // Lee el username
+            char usernameChars[16];
+            dataStream.readRawData(usernameChars, 15);
+            usernameChars[15] = '\0'; // Null-terminar la cadena
+            QString username = QString::fromUtf8(usernameChars).trimmed();
+
+            // Lee el número de victorias y derrotas como little endian
+            int wins, losses;
+            dataStream >> wins >> losses;
+
+            // Crea una estructura de datos para almacenar la información del jugador
+            QVariantMap playerInfo;
+            playerInfo["username"] = username;
+            playerInfo["wins"] = wins;
+            playerInfo["losses"] = losses;
+
+            // Agrega la información del jugador a la lista
+            playersInfo.append(playerInfo);
+        }
+
+        emit playerScoresReceived(playersInfo);
+
+        // Imprimir la lista de información de los jugadores
+        for (const QVariantMap &playerInfo : playersInfo) {
+            qDebug() << "Username: " << playerInfo["username"].toString()
+                     << ", Wins: " << playerInfo["wins"].toInt()
+                     << ", Losses: " << playerInfo["losses"].toInt();
+        }
+    }
 
 }
 

@@ -19,7 +19,8 @@ enum {
     c_not_logged = 4,
     c_begin_game = 6,
     c_game_won = 7,
-    c_game_lost = 8
+    c_game_lost = 8,
+    c_games = 9
 };
 // comunicación cliente-servidor
 enum {
@@ -29,9 +30,9 @@ enum {
     login = 3,
     signin = 4,
     gameWon = 5,
-    gameLost = 6
+    gameLost = 6,
+    gamesPlayed = 7
 };
-
 
 
 /**
@@ -89,13 +90,13 @@ signals:
      * @param isPlayer1Turn Indica si es el turno del jugador 1.
      */
     void changeTurn(bool isPlayer1Turn);
-
     void accountInfoReceived(const QString &username, int wins, int loss);
     void invalidCredentials();
     void userAuthenticated();
     void updateMesa(int mesaNumber, int button, const QString &username);
     void gameStarted(const QString& player1, const QString& player2, int tableNumber);
     void gameFinished();
+    void playerScoresReceived(const QList<QVariantMap>& playersInfo);
 
 
 public slots:

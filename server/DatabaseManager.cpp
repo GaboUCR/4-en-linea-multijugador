@@ -2,6 +2,8 @@
 #include <iostream>
 #include <sqlite3.h>
 #include <tuple>
+#include <vector>
+#include <string>
 
 DatabaseManager::DatabaseManager(const std::string& dbPath) {
     sqlite3_open(dbPath.c_str(), &db);
@@ -164,3 +166,34 @@ void DatabaseManager::incrementPlayerLosses(const std::string& username) {
     }
 
     sqlite3_finalize(stmt);
+}
+
+std::vector<std::tuple<std::string, int, int>> DatabaseManager::getAllPlayersWinLossRecord() {
+    
+    const char* sql = "SELECT username, wins, losses FROM players";
+
+    sqlite3_stmt* stmt;
+    int result = sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr);
+
+    if (result != SQLITE_OK) {
+        std::cerr << "Error preparing statement: " << sqlite3_errmsg(db) << std::endl;
+        return {}; // Retornar lista vacía en caso de error
+    }
+
+    std::vector<std::tuple<std::string, int, int>> records;
+
+    while ((result = sqlite3_step(stmt)) == SQLITE_ROW) {
+        std::string username = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0));
+        int wins = sqlite3_column_int(stmt, 1);
+        int losses = sqlite3_column_int(stmt, 2);
+        records.push_back(std::make_tuple(username, wins, losses));
+    }
+
+    if (result != SQLITE_DONE) {
+        std::cerr << "Error executing query: " << sqlite3_errmsg(db) << std::endl;
+    }
+
+    sqlite3_finalize(stmt);
+
+    return records;
+}

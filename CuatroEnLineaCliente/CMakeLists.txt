@@ -38,6 +38,10 @@ set(PROJECT_SOURCES
         Game.hpp
         GameWindow.cpp
         GameWindow.hpp
+        PlayerScore.hpp
+        PlayerScore.cpp
+        Scores.hpp
+        Scores.cpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

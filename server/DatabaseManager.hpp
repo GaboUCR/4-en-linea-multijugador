@@ -3,7 +3,7 @@
 
 #include <sqlite3.h>
 #include <string>
-
+#include <vector>
 class DatabaseManager {
 public:
     DatabaseManager(const std::string& dbPath);
@@ -15,6 +15,7 @@ public:
     std::tuple<int, int> getPlayerWinLossRecord(const std::string& username);
     void incrementPlayerLosses(const std::string& username);
     void incrementPlayerWins(const std::string& username);
+    std::vector<std::tuple<std::string, int, int>> getAllPlayersWinLossRecord(); 
 private:
     sqlite3* db;
     
