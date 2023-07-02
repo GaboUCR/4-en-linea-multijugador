@@ -19,10 +19,12 @@ Account::Account(MyWebSocket *webSocket, QWidget *parent)
     usernameLabel->setFont(font);
     winsLabel->setFont(font);
     lossLabel->setFont(font);
+
     // Agregar las etiquetas al layout
-    layoutAccount->addWidget(usernameLabel);
-    layoutAccount->addWidget(winsLabel);
-    layoutAccount->addWidget(lossLabel);
+    layoutAccount->addWidget(usernameLabel, 0, Qt::AlignCenter); // Aligned to Center
+    layoutAccount->addWidget(winsLabel, 0, Qt::AlignCenter); // Aligned to Center
+    layoutAccount->addWidget(lossLabel, 0, Qt::AlignCenter); // Aligned to Center
+
     // Establecer el layout para este widget
     this->setLayout(layoutAccount);
 
@@ -34,5 +36,5 @@ void Account::updateAccountInfo(const QString &username, int wins, int loss) {
     // Actualizar las etiquetas con la nueva información
     usernameLabel->setText(username);
     winsLabel->setText(QString::number(wins) + " partidas ganadas");
-    lossLabel->setText(QString::number(wins) + " partidas perdidas");
+    lossLabel->setText(QString::number(loss) + " partidas perdidas");
 }

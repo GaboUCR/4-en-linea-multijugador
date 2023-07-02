@@ -15,6 +15,7 @@ public:
 
 public slots:
     void updatePlayerScores(const QList<QVariantMap>& playersInfo);
+    void onButtonClicked();
 
 private:
     QGridLayout *gridLayout;

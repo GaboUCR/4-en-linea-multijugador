@@ -409,7 +409,6 @@ void do_session(int session_id, std::unordered_map<int, std::shared_ptr<channel>
                 std::cout << "table: " << tablev << std::endl;
                 std::cout << "sessionId: " << sessionId << std::endl;
                 
-
                 int winner_session_id = sessionId;
                 int loser_session_id;
 
@@ -435,6 +434,40 @@ void do_session(int session_id, std::unordered_map<int, std::shared_ptr<channel>
                     }
                 }
 
+                // Obtenemos las victorias y derrotas del usuario 1
+                auto [wins, losses] = dbManager.getPlayerWinLossRecord(jugador_1);
+
+                std::vector<uint8_t> response;
+
+                std::string username = jugador_1;
+
+                // Rellenar el nombre de usuario con espacios hasta llegar a 15 caracteres
+                username.resize(15, ' ');
+
+                response.resize(4 + 15 + 4 + 4);
+                *(int*)response.data() = toLittleEndian(c_logged);
+                *(int*)(response.data() + 4 + 15) = toLittleEndian(wins);
+                *(int*)(response.data() + 4 + 15 + 4) = toLittleEndian(losses);
+                std::copy(username.begin(), username.end(), response.begin() + 4);
+                write_to_channel(*sessions[id_1], response);
+
+                // Obtenemos las victorias y derrotas del usuario 2
+                auto [wins_2, losses_2] = dbManager.getPlayerWinLossRecord(jugador_2);
+
+
+                response.clear();
+                username = jugador_2;
+
+                // Rellenar el nombre de usuario con espacios hasta llegar a 15 caracteres
+                username.resize(15, ' ');
+
+                response.resize(4 + 15 + 4 + 4);
+                *(int*)response.data() = toLittleEndian(c_logged);
+                *(int*)(response.data() + 4 + 15) = toLittleEndian(wins_2);
+                *(int*)(response.data() + 4 + 15 + 4) = toLittleEndian(losses_2);
+                std::copy(username.begin(), username.end(), response.begin() + 4);
+                write_to_channel(*sessions[id_2], response);
+
                 handle_win(winner_session_id, loser_session_id, tablev, sessions);
                     // Restablecer la entrada en 'games'
                     {   
@@ -454,7 +487,6 @@ void do_session(int session_id, std::unordered_map<int, std::shared_ptr<channel>
             }
             
             buffer.consume(buffer.size());
-
         }
     }
     catch (boost::beast::system_error const& se)
