@@ -19,7 +19,7 @@ GameWindow::GameWindow(const QString& player1, const QString& player2, int table
 
     // Establecer las proporciones del espacio que cada widget debe tomar.
     layoutMain->setStretchFactor(playersWidget, 1);
-    layoutMain->setStretchFactor(boardWidget, 3);
+    layoutMain->setStretchFactor(boardWidget, 8);
 
     // Establecer el layout en este widget
     setLayout(layoutMain);

@@ -13,10 +13,8 @@ Game::Game(MyWebSocket* m_socket, QWidget *parent)
     m_mainLayout = new QVBoxLayout;
     m_mainLayout->addWidget(m_navBarU);
 
-    // Conectar la señal de autenticación del usuario a la ranura onUserAuthenticated
     connect(m_socket, &MyWebSocket::userAuthenticated, this, &Game::onUserAuthenticated);
     connect(m_socket, &MyWebSocket::gameStarted, this, &Game::onGameStarted);
-    // En el constructor de tu clase Game
     connect(m_socket, &MyWebSocket::gameFinished, this, &Game::returnToLobby);
 
     // Asignar el layout principal a este widget

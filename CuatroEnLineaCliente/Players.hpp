@@ -36,6 +36,9 @@ public slots:
      */
     void changeTurnIndicator(bool isPlayer1Turn);
 
+protected:
+    void resizeEvent(QResizeEvent *event);
+
 private:
     QGridLayout *layoutMain;         /**< Layout principal que contiene los elementos de la ventana. */
     QLabel *tableLabel;              /**< Etiqueta para mostrar el número de la mesa. */

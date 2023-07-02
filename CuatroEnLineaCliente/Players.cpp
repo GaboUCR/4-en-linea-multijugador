@@ -1,5 +1,6 @@
 #include "Players.hpp"
 #include "WS.hpp"
+#include "qevent.h"
 
 Players::Players(const QString& player1, const QString& player2, int tableNumber, MyWebSocket* socket, QWidget *parent)
     : QWidget(parent), m_socket(socket)
@@ -7,6 +8,8 @@ Players::Players(const QString& player1, const QString& player2, int tableNumber
     this->setWindowTitle("Players Window");
 
     layoutMain = new QGridLayout;
+
+    layoutMain->setSpacing(5);
 
     tableLabel = new QLabel("Table: " + QString::number(tableNumber));
 
@@ -31,6 +34,11 @@ Players::Players(const QString& player1, const QString& player2, int tableNumber
 
     connect(m_socket, &MyWebSocket::changeTurn, this, &Players::changeTurnIndicator);
 
+    // llama a un evento de cambio de tamaño llamar el método resizeEvent
+    QSize initialSize = size();
+    QResizeEvent initialResizeEvent(initialSize, initialSize);
+    resizeEvent(&initialResizeEvent);
+
     this->setLayout(layoutMain);
 }
 
@@ -44,5 +52,34 @@ void Players::changeTurnIndicator(bool isPlayer1Turn) {
     } else {
         player1PixmapLabel->setPixmap(uncheckedPixmap);
         player2PixmapLabel->setPixmap(checkedPixmap);
+    }
+}
+
+void Players::resizeEvent(QResizeEvent *event)
+{
+    QSize size = event->size();
+
+    // Ajustar los márgenes basado en el ancho de la ventana
+    if (size.width() < 400) {
+        layoutMain->setContentsMargins(30, 2, 30, 2);
+
+
+    } else if (size.width() < 700) {
+        layoutMain->setContentsMargins(60, 2, 60, 2);
+
+    } else if (size.width() < 800) {
+        layoutMain->setContentsMargins(60, 10, 60, 10);
+
+    } else if (size.width() < 1000) {
+        layoutMain->setContentsMargins(150, 10, 150, 10);
+
+    } else if (size.width() < 1200) {
+        layoutMain->setContentsMargins(200, 10, 200, 10);
+
+    } else if (size.width() < 1400) {
+        layoutMain->setContentsMargins(300, 10, 300, 10);
+
+    } else {
+        layoutMain->setContentsMargins(400, 10, 400, 10);
     }
 }
