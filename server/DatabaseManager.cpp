@@ -121,3 +121,46 @@ std::tuple<int, int> DatabaseManager::getPlayerWinLossRecord(const std::string& 
         return std::make_tuple(-1, -1); // Indicar error con valores negativos
     }
 }
+
+void DatabaseManager::incrementPlayerWins(const std::string& username) {
+    const char* sql = "UPDATE players SET wins = wins + 1 WHERE username = ?;";
+
+    sqlite3_stmt* stmt;
+    int result = sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr);
+
+    if (result != SQLITE_OK) {
+        std::cerr << "Error preparing statement: " << sqlite3_errmsg(db) << std::endl;
+        return;
+    }
+
+    sqlite3_bind_text(stmt, 1, username.c_str(), -1, SQLITE_STATIC);
+
+    result = sqlite3_step(stmt);
+
+    if (result != SQLITE_DONE) {
+        std::cerr << "Error updating wins: " << sqlite3_errmsg(db) << std::endl;
+    }
+
+    sqlite3_finalize(stmt);
+}
+
+void DatabaseManager::incrementPlayerLosses(const std::string& username) {
+    const char* sql = "UPDATE players SET losses = losses + 1 WHERE username = ?;";
+
+    sqlite3_stmt* stmt;
+    int result = sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr);
+
+    if (result != SQLITE_OK) {
+        std::cerr << "Error preparing statement: " << sqlite3_errmsg(db) << std::endl;
+        return;
+    }
+
+    sqlite3_bind_text(stmt, 1, username.c_str(), -1, SQLITE_STATIC);
+
+    result = sqlite3_step(stmt);
+
+    if (result != SQLITE_DONE) {
+        std::cerr << "Error updating losses: " << sqlite3_errmsg(db) << std::endl;
+    }
+
+    sqlite3_finalize(stmt);

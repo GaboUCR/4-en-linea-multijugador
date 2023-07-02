@@ -13,6 +13,8 @@ public:
     bool registerPlayer(const std::string& username, const std::string& password);
     bool authenticatePlayer(const std::string& username, const std::string& password);
     std::tuple<int, int> getPlayerWinLossRecord(const std::string& username);
+    void incrementPlayerLosses(const std::string& username);
+    void incrementPlayerWins(const std::string& username);
 private:
     sqlite3* db;
     

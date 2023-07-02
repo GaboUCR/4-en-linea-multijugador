@@ -210,7 +210,7 @@ void handle_win(int winner_session_id, int loser_session_id, int table_id ,std::
         sessions[winner_session_id]->session->binary(true);
         sessions[winner_session_id]->session->write(buffer.data());
     }
-
+    
     // Send lose message to loser
     {
         std::unique_lock<std::shared_mutex> lock(sessions[loser_session_id]->mutex);
@@ -373,13 +373,26 @@ void do_session(int session_id, std::unordered_map<int, std::shared_ptr<channel>
 
                 int winner_session_id = sessionId;
                 int loser_session_id;
+
+                std::unique_lock<std::shared_mutex> game_lock(games[tablev]->mutex);
+                std::string jugador_1 = tables[tablev]->jugador_1;
+                int id_1 = tables[tablev]->id_1;
+
+                std::string jugador_2 = tables[tablev]->jugador_2;
+                int id_2 = tables[tablev]->id_2;
+                game_lock.unlock();
                 {
                     std::unique_lock<std::shared_mutex> game_lock(games[tablev]->mutex);
 
                     if (colorv == 0) {
                         loser_session_id = std::get<1>(games[tablev]->jugadores);
+
+                        dbManager.incrementPlayerLosses(jugador_2);
+                        dbManager.incrementPlayerWins(jugador_1);
                     } else {
                         loser_session_id = std::get<0>(games[tablev]->jugadores);
+                        dbManager.incrementPlayerLosses(jugador_1);
+                        dbManager.incrementPlayerWins(jugador_2);                        
                     }
                 }
 
@@ -393,15 +406,6 @@ void do_session(int session_id, std::unordered_map<int, std::shared_ptr<channel>
                     }
                     // Restablecer la entrada en 'tables'
                     
-                    std::unique_lock<std::shared_mutex> game_lock(games[tablev]->mutex);
-                    std::string jugador_1 = tables[tablev]->jugador_1;
-                    int id_1 = tables[tablev]->id_1;
-
-                    std::string jugador_2 = tables[tablev]->jugador_2;
-                    int id_2 = tables[tablev]->id_2;
-                    game_lock.unlock();
-                    
-
                     handleTableAction(jugador_1, 1, tablev, id_1, sessions, tables, games);
                     handleTableAction(jugador_2, 2, tablev, id_2, sessions, tables, games);                   
             }
