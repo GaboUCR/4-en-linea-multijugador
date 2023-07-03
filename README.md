@@ -9,3 +9,6 @@ sudo apt install libboost-all-dev
 ```console
 sudo apt install sqlite3
 ```
+```console
+sudo apt-get install libsqlite3-dev
+```
