@@ -27,6 +27,10 @@ build: configure
 	cd $(BUILD_DIR) && windeployqt.exe .
 	cmd.exe /c "cd $(BUILD_DIR) && start CuatroEnLineaCliente.exe"
 	cmd.exe /c "cd $(BUILD_DIR) && start CuatroEnLineaCliente.exe"
+	cmd.exe /c "cd $(BUILD_DIR) && start CuatroEnLineaCliente.exe"
+	cmd.exe /c "cd $(BUILD_DIR) && start CuatroEnLineaCliente.exe"
+	cmd.exe /c "cd $(BUILD_DIR) && start CuatroEnLineaCliente.exe"
+	cmd.exe /c "cd $(BUILD_DIR) && start CuatroEnLineaCliente.exe"
 
 # Limpiar los archivos de compilación
 clean:

@@ -61,9 +61,9 @@ Board::Board(int table_id, MyWebSocket* socket, QWidget *parent)
     gridLayout = new QGridLayout;
 
     // Establecer el espaciado entre los botones
-    gridLayout->setHorizontalSpacing(0);  // Aquí se establece el espaciado horizontal
-    gridLayout->setVerticalSpacing(0);  // Aquí se establece el espaciado vertical
-    gridLayout->setContentsMargins(400, 10, 400, 10);  // Agregar un margen horizontal de 50
+//    gridLayout->setHorizontalSpacing(0);  // Aquí se establece el espaciado horizontal
+//    gridLayout->setVerticalSpacing(0);  // Aquí se establece el espaciado vertical
+//    gridLayout->setContentsMargins(400, 10, 400, 10);  // Agregar un margen horizontal de 50
 
     // Crear los botones y añadirlos al layout
     for (int row = 0; row < 7; ++row) {
@@ -73,17 +73,17 @@ Board::Board(int table_id, MyWebSocket* socket, QWidget *parent)
             connect(button, &QPushButton::clicked, this, &Board::handleButtonClicked);  // Conecta la señal clicked del botón a un nuevo slot
 
             // Personalizar la apariencia del botón con CSS
-            button->setStyleSheet(
-                "QPushButton {"
-                "  background-color: white;"  // Color de fondo blanco
-                "  border: 1px solid black;"  // Bordes negros
-                "  border-radius: 35px;"      // Hacer que el botón sea redondo
-                "  min-width: 70px;"          // Establecer el ancho mínimo
-                "  max-width: 70px;"          // Establecer el ancho máximo
-                "  min-height: 70px;"         // Establecer la altura mínima
-                "  max-height: 70px;"         // Establecer la altura máxima
-                "}"
-                );
+//            button->setStyleSheet(
+//                "QPushButton {"
+//                "  background-color: white;"  // Color de fondo blanco
+//                "  border: 1px solid black;"  // Bordes negros
+//                "  border-radius: 35px;"      // Hacer que el botón sea redondo
+//                "  min-width: 70px;"          // Establecer el ancho mínimo
+//                "  max-width: 70px;"          // Establecer el ancho máximo
+//                "  min-height: 70px;"         // Establecer la altura mínima
+//                "  max-height: 70px;"         // Establecer la altura máxima
+//                "}"
+//                );
 
             // Inicializa el estado del tablero a 0 (sin piezas)
             boardState[row][col] = 0;
@@ -127,6 +127,7 @@ void Board::changeButtonColor(int row, int col, int color, int id)
     boardState[row][col] = 1;
     boardColor[row][col] = color;
 
+    // llama a un evento de cambio de tamaño llamar el método resizeEvent
     // llama a un evento de cambio de tamaño llamar el método resizeEvent
     QSize initialSize = size();
     QResizeEvent initialResizeEvent(initialSize, initialSize);
@@ -219,11 +220,20 @@ bool Board::hasWon(int color, int lastMoveRow, int lastMoveCol)
     return false;
 }
 
+//void Board::showEvent(QShowEvent *event)
+//{
+//    // Esto se llama cuando la ventana es mostrada
+
+//    QWidget::showEvent(event); // llama a la implementación base
+//}
 
 void Board::resizeEvent(QResizeEvent *event)
 {
     QSize size = event->size();
     int sideLength = qMin(size.width(), size.height()) / 9;
+
+    qDebug() << "width : "<<size.width();
+    qDebug() << "\n heigth : "<<size.height();
 
     // Ajustar los márgenes basado en el ancho de la ventana
     if (size.width() < 400) {
@@ -235,11 +245,12 @@ void Board::resizeEvent(QResizeEvent *event)
         sideLength = qMin(size.width(), size.height()) / 10;
 
     } else if (size.width() < 800) {
-        gridLayout->setContentsMargins(60, 10, 60, 10);
+        gridLayout->setContentsMargins(60, 2, 60, 2);
         sideLength = qMin(size.width(), size.height()) / 10;
 
     } else if (size.width() < 1000) {
         gridLayout->setContentsMargins(150, 10, 150, 10);
+        sideLength = qMin(size.width(), size.height()) / 10;
 
     } else if (size.width() < 1200) {
         gridLayout->setContentsMargins(200, 10, 200, 10);

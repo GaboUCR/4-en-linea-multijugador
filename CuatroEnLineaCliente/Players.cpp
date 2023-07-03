@@ -55,28 +55,35 @@ void Players::changeTurnIndicator(bool isPlayer1Turn) {
     }
 }
 
+//void Players::showEvent(QShowEvent *event)
+//{
+//    // Esto se llama cuando la ventana es mostrada
+//    QWidget::showEvent(event); // llama a la implementación base
+//}
+
+
+
 void Players::resizeEvent(QResizeEvent *event)
 {
     QSize size = event->size();
+    int width = size.width();
 
-    // Ajustar los márgenes basado en el ancho de la ventana
-    if (size.width() < 400) {
+    if (width < 400) {
         layoutMain->setContentsMargins(30, 2, 30, 2);
 
-
-    } else if (size.width() < 700) {
+    } else if (width < 700) {
         layoutMain->setContentsMargins(60, 2, 60, 2);
 
-    } else if (size.width() < 800) {
+    } else if (width < 800) {
         layoutMain->setContentsMargins(60, 10, 60, 10);
 
-    } else if (size.width() < 1000) {
+    } else if (width < 1000) {
         layoutMain->setContentsMargins(150, 10, 150, 10);
 
-    } else if (size.width() < 1200) {
+    } else if (width < 1200) {
         layoutMain->setContentsMargins(200, 10, 200, 10);
 
-    } else if (size.width() < 1400) {
+    } else if (width < 1400) {
         layoutMain->setContentsMargins(300, 10, 300, 10);
 
     } else {

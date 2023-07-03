@@ -24,7 +24,7 @@ public:
      * @param player1 Nombre del primer jugador.
      * @param player2 Nombre del segundo jugador.
      * @param tableNumber Número de la mesa de juego.
-     * @param m_socket Puntero al objeto websocket para comunicaciones en tiempo real.
+     * @param m_socket Puntero al objeto WebSocket para comunicaciones en tiempo real.
      * @param parent Puntero al widget padre. Es nulo por defecto.
      */
     Players(const QString& player1, const QString& player2, int tableNumber, MyWebSocket* m_socket, QWidget *parent = nullptr);
@@ -37,7 +37,11 @@ public slots:
     void changeTurnIndicator(bool isPlayer1Turn);
 
 protected:
-    void resizeEvent(QResizeEvent *event);
+    /**
+     * @brief Maneja el evento de redimensionado de la ventana.
+     * @param event Puntero al objeto QResizeEvent.
+     */
+    void resizeEvent(QResizeEvent *event) override;
 
 private:
     QGridLayout *layoutMain;         /**< Layout principal que contiene los elementos de la ventana. */
@@ -55,4 +59,5 @@ private:
 
 
 #endif // PLAYERSWINDOW_H
+
 

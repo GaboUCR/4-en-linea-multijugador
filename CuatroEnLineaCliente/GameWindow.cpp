@@ -1,4 +1,6 @@
 #include "GameWindow.hpp"
+#include "Board.h"
+#include "Players.hpp"
 
 GameWindow::GameWindow(const QString& player1, const QString& player2, int tableNumber, MyWebSocket* m_socket, QWidget* parent)
     : QWidget(parent) {

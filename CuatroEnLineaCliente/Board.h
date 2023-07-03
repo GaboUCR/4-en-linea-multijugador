@@ -21,7 +21,7 @@ enum ButtonColor {
  * @brief Clase que representa el tablero del juego.
  *
  * Esta clase es responsable de gestionar el tablero de juego.
- * Contiene un grid de botones y se encarga de cambiar el color de los botones.
+ * Contiene una cuadrícula de botones y se encarga de cambiar el color de los botones.
  */
 class Board : public QWidget
 {
@@ -58,11 +58,13 @@ private slots:
      * @brief Manejador para cuando se presiona un botón.
      */
     void handleButtonClicked();
+
     /**
      * @brief Cambia el color de un botón en el tablero.
      * @param row Fila del botón.
      * @param col Columna del botón.
      * @param color Color del botón (enum ButtonColor).
+     * @param id Identificador del botón.
      */
     void changeButtonColor(int row, int col, int color, int id);
 
@@ -78,11 +80,10 @@ private:
     QPushButton *buttons[7][7]; /**< Matriz de botones del tablero. */
     MyWebSocket* m_socket;      /**< Puntero al objeto WebSocket para comunicación en tiempo real. */
     int boardState[7][7];       /**< Estado del tablero de juego. */
-    int boardColor[7][7];
+    int boardColor[7][7];       /**< Color de los botones en el tablero. */
     int player_id;              /**< Identificador del jugador. */
     int table;                  /**< Identificador de la mesa de juego. */
-    bool hasWon(int color, int lastMoveRow, int lastMoveCol);
-
+    bool hasWon(int color, int lastMoveRow, int lastMoveCol); /**< Método para verificar si un jugador ha ganado. */
 };
 
-#endif
+#endif // BOARD_H

@@ -30,6 +30,7 @@ void Game::onUserAuthenticated()
     // Añadir NavBar al layout
     m_mainLayout->addWidget(m_navBar);
     m_navBar->show();
+
 }
 
 void Game::onGameStarted(const QString& player1, const QString& player2, int tableNumber)
@@ -46,6 +47,7 @@ void Game::onGameStarted(const QString& player1, const QString& player2, int tab
 
     // Añadir GameWindow al layout principal
     m_mainLayout->addWidget(gameWindow);
+
 }
 
 void Game::returnToLobby()
@@ -61,4 +63,5 @@ void Game::returnToLobby()
     // Añadir NavBar al layout (asumiendo que representa el lobby)
     m_mainLayout->addWidget(m_navBar);
     m_navBar->show();
+
 }

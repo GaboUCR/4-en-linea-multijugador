@@ -17,6 +17,7 @@
 #include <QUrl>
 #include <QtNetwork>
 #include "Board.h"
+#include "GameWindow.hpp"
 #include "Players.hpp"
 #include "GameLobbyWindow.hpp"
 #include "Account.hpp"
@@ -64,11 +65,14 @@ int main(int argc, char *argv[]) {
 
     QApplication app(argc, argv);
 
+    // QUrl url = QUrl("wss://cuatroenlinea.gabrielgamboa.site");
     QUrl url = QUrl("ws://localhost:8080");
     MyWebSocket *mySocket = new MyWebSocket(url);
 
     Game* e = new Game (mySocket);
 //    Board* e = ShowBoard(2, mySocket);
+//    GameWindow* e = new GameWindow("ho", "12", 5, mySocket);
+
     e -> show();
 
     return app.exec();
