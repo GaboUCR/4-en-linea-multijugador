@@ -9,10 +9,31 @@
 /**
  * Enumeración para tipos de mensajes.
  */
+// comunicación servidor-cliente
 enum {
-    credencial = 0, /**< Mensaje de credenciales. */
-    c_board = 1     /**< Mensaje de tablero. */
+    credencial = 0,
+    c_table = 5,
+    c_board = 1,
+    c_account = 2,
+    c_logged = 3,
+    c_not_logged = 4,
+    c_begin_game = 6,
+    c_game_won = 7,
+    c_game_lost = 8,
+    c_games = 9
 };
+// comunicación cliente-servidor
+enum {
+    board = 0,
+    table = 1,
+    nulo = 2,
+    login = 3,
+    signin = 4,
+    gameWon = 5,
+    gameLost = 6,
+    gamesPlayed = 7
+};
+
 
 /**
  * @class MyWebSocket
@@ -51,20 +72,72 @@ public:
      */
     int getSessionId();
 
+    QString getUsername();
+
+    void setUsername(const QString &username);
+
 signals:
     /**
-     * @brief Señal emitida cuando el color de una casilla del tablero cambia.
-     * @param x Coordenada x de la casilla.
-     * @param y Coordenada y de la casilla.
-     * @param color El nuevo color de la casilla.
+     * @brief Señal emitida cuando el color de una celda del tablero cambia.
+     * @param x Coordenada x de la celda.
+     * @param y Coordenada y de la celda.
+     * @param color El nuevo color de la celda.
+     * @param id Identificador de la celda.
      */
-    void boardColorChanged(int x, int y, int color);
+    void boardColorChanged(int x, int y, int color, int id);
 
     /**
      * @brief Señal emitida para cambiar el turno.
      * @param isPlayer1Turn Indica si es el turno del jugador 1.
      */
     void changeTurn(bool isPlayer1Turn);
+
+    /**
+     * @brief Señal emitida cuando se recibe información de la cuenta.
+     * @param username Nombre de usuario.
+     * @param wins Número de victorias.
+     * @param loss Número de derrotas.
+     */
+    void accountInfoReceived(const QString &username, int wins, int loss);
+
+    /**
+     * @brief Señal emitida cuando las credenciales son inválidas.
+     */
+    void invalidCredentials();
+
+    /**
+     * @brief Señal emitida cuando el usuario ha sido autenticado.
+     */
+    void userAuthenticated();
+
+    /**
+     * @brief Señal emitida para actualizar una mesa.
+     * @param mesaNumber Número de mesa.
+     * @param button Número de botón.
+     * @param username Nombre de usuario.
+     */
+    void updateMesa(int mesaNumber, int button, const QString &username);
+
+    /**
+     * @brief Señal emitida cuando el juego comienza.
+     * @param player1 Nombre del jugador 1.
+     * @param player2 Nombre del jugador 2.
+     * @param tableNumber Número de mesa.
+     */
+    void gameStarted(const QString& player1, const QString& player2, int tableNumber);
+
+    /**
+     * @brief Señal emitida cuando el juego termina.
+     */
+    void gameFinished();
+
+    /**
+     * @brief Señal emitida cuando se reciben las puntuaciones de los jugadores.
+     * @param playersInfo Información de las puntuaciones de los jugadores.
+     */
+    void playerScoresReceived(const QList<QVariantMap>& playersInfo);
+
+
 
 public slots:
     /**
@@ -97,6 +170,7 @@ public slots:
 private:
     QWebSocket *m_webSocket;      /**< Puntero al objeto WebSocket. */
     int session_id;               /**< ID de la sesión actual. */
+    QString m_username;           /**< Username de la sesión actual. */
     QMutex m_mutex;               /**< Mutex para sincronización. */
     QTimer* m_heartbeatTimer;     /**< Temporizador para enviar heartbeats. */
 };

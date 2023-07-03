@@ -1,6 +1,6 @@
 CC = g++
 
-SRCS = server.cpp channel.cpp 
+SRCS = server.cpp channel.cpp DatabaseManager.cpp -O3 -lsqlite3
 EXEC = programa
 
 .PHONY: all clean

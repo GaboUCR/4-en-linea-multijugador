@@ -2,5 +2,6 @@
     <qresource prefix="/">
         <file>imagenes/checked.png</file>
         <file>imagenes/unchecked.png</file>
+        <file>imagenes/refresh.png</file>
     </qresource>
 </RCC>

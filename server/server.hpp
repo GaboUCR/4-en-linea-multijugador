@@ -21,14 +21,26 @@ using tcp = boost::asio::ip::tcp;
 // comunicación servidor-cliente
 enum {
     credencial = 0,
-    c_board = 1
+    c_table = 5,
+    c_board = 1,
+    c_account = 2,
+    c_logged = 3,
+    c_not_logged = 4,
+    c_begin_game = 6,
+    c_game_won = 7,
+    c_game_lost = 8,
+    c_games = 9
 };
-
 // comunicación cliente-servidor
 enum {
     board = 0,
     table = 1,
-    nulo = 2
+    nulo = 2,
+    login = 3,
+    signin = 4,
+    gameWon = 5,
+    gameLost = 6,
+    gamesPlayed = 7
 };
 
 
@@ -47,6 +59,8 @@ struct GameTab {
  */
 struct TableTab {
     std::string jugador_1;
+    int id_1;
+    int id_2;
     std::string jugador_2;
     std::shared_mutex mutex;
 };
@@ -60,6 +74,13 @@ struct BoardMsg {
     int x;
     int y;
 };
+
+struct clickedTable {
+    int clicked;
+    int button;
+
+};
+
 
 /**
  * @brief Función para reportar errores.

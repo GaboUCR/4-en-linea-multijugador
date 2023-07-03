@@ -24,6 +24,24 @@ set(PROJECT_SOURCES
         WS.hpp
         Players.hpp
         Players.cpp
+        GameLobbyWindow.cpp
+        GameLobbyWindow.hpp
+        MesaWindow.cpp
+        MesaWindow.hpp
+        Account.hpp
+        Account.cpp
+        NavBarWidget.cpp
+        NavBarWidget.hpp
+        NavBarU.cpp
+        NavBarU.hpp
+        Game.cpp
+        Game.hpp
+        GameWindow.cpp
+        GameWindow.hpp
+        PlayerScore.hpp
+        PlayerScore.cpp
+        Scores.hpp
+        Scores.cpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

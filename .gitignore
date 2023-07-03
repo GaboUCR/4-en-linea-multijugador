@@ -5,6 +5,9 @@ build-CuatroEnLineaCliente-name-Debug/*
 build-CuatroEnLineaCliente-WA-Debug/*
 build-CuatroEnLineaCliente-WebAssembly_Qt_6_5_1_multi_threaded-Debug/*
 build-CuatroEnLineaCliente-Desktop_Qt_6_5_1_MinGW_64_bit-Debug/*
+build-CuatroEnLineaCliente-WA-Release/*
+build-CuatroEnLineaCliente-Desktop_Qt_6_5_1_MinGW_64_bit-Release/*
+build-CuatroEnLineaCliente-WA-Release/*
 CuatroEnLineaCliente/build/*
 server/sqlite3.c
 server/sqlite3.h
@@ -76,7 +79,7 @@ CMakeLists.txt.user*
 
 # Python byte code
 *.pyc
-
+*.db
 # Binaries
 # --------
 *.dll

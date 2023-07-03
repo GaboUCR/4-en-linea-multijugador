@@ -38,7 +38,7 @@ void Board::handleButtonClicked()
             stream.setVersion(QDataStream::Qt_5_15);
             stream.setByteOrder(QDataStream::LittleEndian);
 
-            stream << (int)0;  // Action
+            stream << (int)board;  // Action
             stream << m_socket->getSessionId();
             stream << table;
             stream << row;
@@ -46,8 +46,6 @@ void Board::handleButtonClicked()
 
             m_socket->sendBinaryMessage(message);
             return;
-
-
         }
     }
 
@@ -57,20 +55,15 @@ Board::Board(int table_id, MyWebSocket* socket, QWidget *parent)
     : QWidget(parent), table(table_id), m_socket(socket)
 {
 
-    connect(socket, &MyWebSocket::boardColorChanged, this, &Board::changeButtonColor);
+    connect(socket, &MyWebSocket::boardColorChanged, this, &Board::changeButtonColor, Qt::DirectConnection);
 
     // Crear un layout en grilla
     gridLayout = new QGridLayout;
 
     // Establecer el espaciado entre los botones
-    gridLayout->setHorizontalSpacing(0);  // Aquí se establece el espaciado horizontal
-    gridLayout->setVerticalSpacing(0);  // Aquí se establece el espaciado vertical
-    gridLayout->setContentsMargins(400, 10, 400, 10);  // Agregar un margen horizontal de 50
-
-    // llama a un evento de cambio de tamaño llamar el método resizeEvent
-    QSize initialSize = size();
-    QResizeEvent initialResizeEvent(initialSize, initialSize);
-    resizeEvent(&initialResizeEvent);
+//    gridLayout->setHorizontalSpacing(0);  // Aquí se establece el espaciado horizontal
+//    gridLayout->setVerticalSpacing(0);  // Aquí se establece el espaciado vertical
+//    gridLayout->setContentsMargins(400, 10, 400, 10);  // Agregar un margen horizontal de 50
 
     // Crear los botones y añadirlos al layout
     for (int row = 0; row < 7; ++row) {
@@ -80,31 +73,50 @@ Board::Board(int table_id, MyWebSocket* socket, QWidget *parent)
             connect(button, &QPushButton::clicked, this, &Board::handleButtonClicked);  // Conecta la señal clicked del botón a un nuevo slot
 
             // Personalizar la apariencia del botón con CSS
-            button->setStyleSheet(
-                "QPushButton {"
-                "  background-color: white;"  // Color de fondo blanco
-                "  border: 1px solid black;"  // Bordes negros
-                "  border-radius: 35px;"      // Hacer que el botón sea redondo
-                "  min-width: 70px;"          // Establecer el ancho mínimo
-                "  max-width: 70px;"          // Establecer el ancho máximo
-                "  min-height: 70px;"         // Establecer la altura mínima
-                "  max-height: 70px;"         // Establecer la altura máxima
-                "}"
-                );
+//            button->setStyleSheet(
+//                "QPushButton {"
+//                "  background-color: white;"  // Color de fondo blanco
+//                "  border: 1px solid black;"  // Bordes negros
+//                "  border-radius: 35px;"      // Hacer que el botón sea redondo
+//                "  min-width: 70px;"          // Establecer el ancho mínimo
+//                "  max-width: 70px;"          // Establecer el ancho máximo
+//                "  min-height: 70px;"         // Establecer la altura mínima
+//                "  max-height: 70px;"         // Establecer la altura máxima
+//                "}"
+//                );
 
             // Inicializa el estado del tablero a 0 (sin piezas)
             boardState[row][col] = 0;
+            boardColor[row][col] = -1;
             buttons[row][col] = button;
             // Añadir el botón al layout en la posición correspondiente
             gridLayout->addWidget(button, row, col);
         }
     }
 
+    // llama a un evento de cambio de tamaño llamar el método resizeEvent
+    QSize initialSize = size();
+    QResizeEvent initialResizeEvent(initialSize, initialSize);
+    resizeEvent(&initialResizeEvent);
+
     // Asignar el layout a la ventana
     setLayout(gridLayout);
 }
 
-void Board::changeButtonColor(int row, int col, int color)
+Board::~Board()
+{
+    // Liberar la memoria de los botones
+    for (int row = 0; row < 7; ++row) {
+        for (int col = 0; col < 7; ++col) {
+            delete buttons[row][col];
+        }
+    }
+
+    // Liberar la memoria del layout
+    delete gridLayout;
+}
+
+void Board::changeButtonColor(int row, int col, int color, int id)
 {
     if (row < 0 || row >= 7 || col < 0 || col >= 7) {
         // Índices fuera de rango
@@ -113,36 +125,169 @@ void Board::changeButtonColor(int row, int col, int color)
 
     QPushButton *button = buttons[row][col];
     boardState[row][col] = 1;
+    boardColor[row][col] = color;
 
-    QString baseStyle =
-        "QPushButton {"
-        "  background-color: %1;"
-        "  border: 1px solid black;"
-        "  border-radius: 35px;"
-        "  min-width: 70px;"
-        "  max-width: 70px;"
-        "  min-height: 70px;"
-        "  max-height: 70px;"
-        "} "
-        "QPushButton:pressed {"
-        "  background-color: %1;"
-        "}";
+    // llama a un evento de cambio de tamaño llamar el método resizeEvent
+    // llama a un evento de cambio de tamaño llamar el método resizeEvent
+    QSize initialSize = size();
+    QResizeEvent initialResizeEvent(initialSize, initialSize);
+    resizeEvent(&initialResizeEvent);
 
-    if (color == RED) {
-        button->setStyleSheet(baseStyle.arg("red"));
-    } else if (color == YELLOW) {
-        button->setStyleSheet(baseStyle.arg("yellow"));
+//    QString baseStyle =
+//        "QPushButton {"
+//        "  background-color: %1;"
+//        "  border: 1px solid black;"
+//        "  border-radius: 35px;"
+//        "  min-width: 70px;"
+//        "  max-width: 70px;"
+//        "  min-height: 70px;"
+//        "  max-height: 70px;"
+//        "} "
+//        "QPushButton:pressed {"
+//        "  background-color: %1;"
+//        "}";
+
+//    if (color == RED) {
+//        button->setStyleSheet(baseStyle.arg("red"));
+//    } else if (color == YELLOW) {
+//        button->setStyleSheet(baseStyle.arg("yellow"));
+//    }
+//    qDebug() << "HasWon: " << hasWon(color, row, col);
+//    qDebug() << "ID: " << id;
+//    qDebug() << "Session ID: " << m_socket->getSessionId();
+
+
+    // Ahora primero cambiamos el color y luego verificamos si el jugador ha ganado
+    if (hasWon(color, row, col) && id == m_socket->getSessionId()) {
+        // Construir el mensaje para indicar que el jugador ha ganado
+        QByteArray message;
+        QDataStream stream(&message, QIODevice::WriteOnly);
+        stream.setVersion(QDataStream::Qt_5_15);
+        stream.setByteOrder(QDataStream::LittleEndian);
+
+        // Añadir la acción GameWon, el color del jugador, el número de la mesa y el ID de la sesión
+        stream << (int)gameWon;
+        stream << color;
+        stream << table;
+        stream << m_socket->getSessionId();
+
+        qDebug() << "Mensaje enviado (hex):" << message.toHex();
+
+        // Enviar el mensaje
+        m_socket->sendBinaryMessage(message);
     }
 }
 
+
+bool Board::hasWon(int color, int lastMoveRow, int lastMoveCol)
+{
+    // Direcciones: horizontal, vertical, diagonal principal, diagonal secundaria
+    const int directions[4][2] = {{1, 0}, {0, 1}, {1, 1}, {1, -1}};
+
+    // Iterar por cada dirección
+    for (int dir = 0; dir < 4; ++dir) {
+        int dx = directions[dir][0];
+        int dy = directions[dir][1];
+
+        // Contar cuántas fichas consecutivas del mismo color hay en esta dirección
+        int count = 1;  // La ficha recién colocada
+        for (int step = 1; step < 4; ++step) {
+            int x = lastMoveCol + step * dx;
+            int y = lastMoveRow + step * dy;
+            if (x < 0 || x >= 7 || y < 0 || y >= 7 || boardColor[y][x] != color) {
+                break;  // Fuera de los límites o no coincide con el color
+            }
+            count++;
+        }
+
+        // Contar en la dirección opuesta
+        for (int step = 1; step < 4; ++step) {
+            int x = lastMoveCol - step * dx;
+            int y = lastMoveRow - step * dy;
+            if (x < 0 || x >= 7 || y < 0 || y >= 7 || boardColor[y][x] != color) {
+                break;  // Fuera de los límites o no coincide con el color
+            }
+            count++;
+        }
+
+        // Si hay al menos 4 fichas consecutivas, el jugador ha ganado
+        if (count >= 4) {
+            return true;
+        }
+    }
+
+    // Si llegamos aquí, no hay 4 fichas consecutivas en ninguna dirección
+    return false;
+}
+
+//void Board::showEvent(QShowEvent *event)
+//{
+//    // Esto se llama cuando la ventana es mostrada
+
+//    QWidget::showEvent(event); // llama a la implementación base
+//}
+
 void Board::resizeEvent(QResizeEvent *event)
-{   //@todo Ajustar diseño responsive
+{
     QSize size = event->size();
-    if (size.width() < 800) {
-        gridLayout->setContentsMargins(200, 10, 200, 10);
+    int sideLength = qMin(size.width(), size.height()) / 9;
+
+    qDebug() << "width : "<<size.width();
+    qDebug() << "\n heigth : "<<size.height();
+
+    // Ajustar los márgenes basado en el ancho de la ventana
+    if (size.width() < 400) {
+        gridLayout->setContentsMargins(30, 2, 30, 2);
+        sideLength = qMin(size.width(), size.height()) / 10;
+
+    } else if (size.width() < 700) {
+        gridLayout->setContentsMargins(60, 2, 60, 2);
+        sideLength = qMin(size.width(), size.height()) / 10;
+
+    } else if (size.width() < 800) {
+        gridLayout->setContentsMargins(60, 2, 60, 2);
+        sideLength = qMin(size.width(), size.height()) / 10;
+
+    } else if (size.width() < 1000) {
+        gridLayout->setContentsMargins(150, 10, 150, 10);
+        sideLength = qMin(size.width(), size.height()) / 10;
+
     } else if (size.width() < 1200) {
+        gridLayout->setContentsMargins(200, 10, 200, 10);
+
+    } else if (size.width() < 1400) {
         gridLayout->setContentsMargins(300, 10, 300, 10);
+
     } else {
         gridLayout->setContentsMargins(400, 10, 400, 10);
     }
+
+    // Ajustar el tamaño de los botones en función del tamaño de la ventana
+    for (int row = 0; row < 7; ++row) {
+        for (int col = 0; col < 7; ++col) {
+            QPushButton *button = buttons[row][col];
+
+            // Configura el botón para que sea redondo usando estilo CSS
+            int radius = sideLength / 2;
+            QString baseStyle =
+                "QPushButton {"
+                "  background-color: %1;"
+                "  border: 1px solid black;"
+                "  border-radius: %2px;"
+                "  min-width: %3px;"
+                "  max-width: %3px;"
+                "  min-height: %3px;"
+                "  max-height: %3px;"
+                "} "
+                "QPushButton:pressed {"
+                "  background-color: %1;"
+                "}";
+
+            QString color = (boardColor[row][col] == RED) ? "red" :
+                                (boardColor[row][col] == YELLOW) ? "yellow" : "white";
+
+            button->setStyleSheet(baseStyle.arg(color).arg(radius).arg(sideLength));
+        }
+    }
 }
+
