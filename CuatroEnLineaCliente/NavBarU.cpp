@@ -25,6 +25,7 @@ NavBarU::NavBarU(MyWebSocket* m_socket, QWidget *parent)
 
     // Formulario de Login
     QFormLayout *loginLayout = new QFormLayout;
+    passwordLoginLineEdit->setEchoMode(QLineEdit::Password);
     loginLayout->addRow(new QLabel("Username:"), usernameLoginLineEdit);
     loginLayout->addRow(new QLabel("Password:"), passwordLoginLineEdit);
     QPushButton *loginSubmitButton = new QPushButton("Submit");
@@ -53,6 +54,8 @@ NavBarU::NavBarU(MyWebSocket* m_socket, QWidget *parent)
     passwordRegisterLineEdit->setMaxLength(20);
     confirmPasswordRegisterLineEdit->setMaxLength(20);
 
+    passwordRegisterLineEdit->setEchoMode(QLineEdit::Password); // Oculta las letras
+    confirmPasswordRegisterLineEdit->setEchoMode(QLineEdit::Password);
     // StackedWidget
     QStackedWidget *stackedWidget = new QStackedWidget;
     stackedWidget->addWidget(loginWidget);
