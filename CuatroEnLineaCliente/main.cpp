@@ -64,15 +64,11 @@ QWidget* ShowGameWindow(const QString& player1, const QString& player2, int tabl
 int main(int argc, char *argv[]) {
 
     QApplication app(argc, argv);
-
-    // QUrl url = QUrl("wss://cuatroenlinea.gabrielgamboa.site");
-    QUrl url = QUrl("ws://localhost:8080");
+    
+    QUrl url = QUrl("wss://cuatroenlinea.gabrielgamboa.site");
     MyWebSocket *mySocket = new MyWebSocket(url);
 
     Game* e = new Game (mySocket);
-//    Board* e = ShowBoard(2, mySocket);
-//    GameWindow* e = new GameWindow("ho", "12", 5, mySocket);
-
     e -> show();
 
     return app.exec();
